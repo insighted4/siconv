@@ -183,7 +183,8 @@ func processCSV(fileReader io.Reader, filename string, cli *client.Client, logge
 		}
 
 		row := map[string]string{
-			"reference": fmt.Sprintf("%s:%d", filename, line),
+			"file_ref": filename,
+			"line_ref": fmt.Sprintf("%d", line),
 		}
 		for index, header := range headers {
 			h := strings.TrimSpace(strings.ToLower(header))

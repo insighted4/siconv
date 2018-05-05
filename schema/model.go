@@ -8,7 +8,8 @@ type Model interface {
 
 type StorageModel struct {
 	ID        string     `json:"id"`
-	Reference string     `json:"reference"`
+	FileRef   string     `json:"file_ref"`
+	LineRef   int        `json:"line_ref"`
 	CreatedAt *time.Time `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
 }

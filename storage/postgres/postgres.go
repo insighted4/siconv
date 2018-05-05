@@ -65,7 +65,7 @@ func (dao *postgres) selectAndCount(model interface{}, pagination *siconv.Pagina
 		pagination = siconv.NewPagination(siconv.Limit, 0)
 	}
 
-	count, err := dao.db.Model(model).Order("reference").Limit(pagination.Limit).Offset(pagination.Offset).SelectAndCount()
+	count, err := dao.db.Model(model).Limit(pagination.Limit).Order("line_ref").Offset(pagination.Offset).SelectAndCount()
 	if err != nil && err != pg.ErrNoRows {
 		return nil, 0, err
 	}
