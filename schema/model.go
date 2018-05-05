@@ -8,6 +8,7 @@ type Model interface {
 
 type StorageModel struct {
 	ID        string     `json:"id"`
+	Reference string     `json:"reference"`
 	CreatedAt *time.Time `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
 }
@@ -135,7 +136,7 @@ type HistoricoSituacao struct {
 	DIAS_HISTORICO_SIT int        `json:"dias_historico_sit"`
 	COD_HISTORICO_SIT  string     `json:"cod_historico_sit"`
 
-	TableName struct{} `sql:"historico_situacoes"`
+	TableName struct{} `json:"-" sql:"historico_situacoes"`
 }
 
 type IngressoContrapartida struct {
@@ -231,7 +232,7 @@ type ProgramaProposta struct {
 	ID_PROGRAMA string `json:"id_programa"`
 	ID_PROPOSTA string `json:"id_proposta"`
 
-	TableName struct{} `sql:"programa_propostas"`
+	TableName struct{} `json:"-" sql:"programa_propostas"`
 }
 
 type Proponente struct {
@@ -280,7 +281,7 @@ type Proposta struct {
 
 	Convenios []*Convenio `json:"convenios" sql:"-"`
 
-	TableName struct{} `sql:"propostas"`
+	TableName struct{} `json:"-" sql:"propostas"`
 }
 
 type ProrrogaOficio struct {

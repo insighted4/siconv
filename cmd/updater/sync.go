@@ -11,8 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"strconv"
-
 	"github.com/insighted4/siconv/client"
 	"github.com/insighted4/siconv/server"
 	"github.com/sirupsen/logrus"
@@ -185,7 +183,7 @@ func processCSV(fileReader io.Reader, filename string, cli *client.Client, logge
 		}
 
 		row := map[string]string{
-			"id": strconv.Itoa(line),
+			"reference": fmt.Sprintf("%s:%d", filename, line),
 		}
 		for index, header := range headers {
 			h := strings.TrimSpace(strings.ToLower(header))

@@ -27,6 +27,10 @@ func (dao *postgres) insert(model schema.Model) (string, error) {
 }
 
 func (dao *postgres) get(model schema.Model, id string) (schema.Model, error) {
+	if !siconv.IsValidUUID(id) {
+		return nil, siconv.ErrInvalidUUID
+	}
+
 	err := dao.db.Model(model).Where("id = ?", id).Select()
 	if err == pg.ErrNoRows {
 		return model, siconv.ErrNotFound
@@ -61,7 +65,7 @@ func (dao *postgres) selectAndCount(model interface{}, pagination *siconv.Pagina
 		pagination = siconv.NewPagination(siconv.Limit, 0)
 	}
 
-	count, err := dao.db.Model(model).Limit(pagination.Limit).Offset(pagination.Offset).Order("id").SelectAndCount()
+	count, err := dao.db.Model(model).Order("reference").Limit(pagination.Limit).Offset(pagination.Offset).SelectAndCount()
 	if err != nil && err != pg.ErrNoRows {
 		return nil, 0, err
 	}
