@@ -4,6 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (s *Client) CreateTermoAditivo(termoAditivo *schema.TermoAditivo) (string, error) {
@@ -16,4 +17,11 @@ func (s *Client) GetTermoAditivo(id string) (*schema.TermoAditivo, error) {
 	var model schema.TermoAditivo
 	_, err := s.get(&model, url, nil)
 	return &model, err
+}
+
+func (s *Client) ListTermoAditivo(pagination *siconv.Pagination) ([]*schema.TermoAditivo, int, error) {
+	url := path.Join(s.prefix, "termo-aditivos")
+	var models []*schema.TermoAditivo
+	total, err := s.get(&models, url, nil)
+	return models, total, err
 }

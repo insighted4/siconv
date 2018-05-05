@@ -11,3 +11,7 @@ func (s *service) CreateMetaCronoFisico(metaCronoFisico *schema.MetaCronoFisico)
 func (s *service) GetMetaCronoFisico(id string) (*schema.MetaCronoFisico, error) {
 	return s.dao.GetMetaCronoFisico(id)
 }
+
+func (s *service) ListMetaCronoFisico(pagination *Pagination) ([]*schema.MetaCronoFisico, int, error) {
+	return s.dao.ListMetaCronoFisico(pagination)
+}

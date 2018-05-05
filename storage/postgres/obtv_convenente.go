@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreateOBTVConvenente(obtvConvenente *schema.OBTVConvenente) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetOBTVConvenente(id string) (*schema.OBTVConvenente, error
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListOBTVConvenente(pagination *siconv.Pagination) ([]*schema.OBTVConvenente, int, error) {
+	models := []*schema.OBTVConvenente{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

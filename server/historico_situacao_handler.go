@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"path"
 
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/schema"
 	"github.com/insighted4/siconv/siconv"
@@ -46,6 +48,19 @@ func (s *server) GetHistoricoSituacaoHandler(c *gin.Context) {
 		location := path.Join(Prefix, "historico-situacoes", model.ID)
 		c.Header("Location", location)
 		c.JSON(http.StatusOK, model)
+	default:
+		s.logger.Error(err)
+		abort(c, http.StatusInternalServerError, err.Error())
+	}
+}
+
+func (s *server) ListHistoricoSituacaoHandler(c *gin.Context) {
+	pagination := getPagination(c)
+	models, total, err := s.service.ListHistoricoSituacao(pagination)
+	switch err {
+	case nil:
+		c.Header("X-Total-Count", strconv.Itoa(total))
+		c.JSON(http.StatusOK, models)
 	default:
 		s.logger.Error(err)
 		abort(c, http.StatusInternalServerError, err.Error())

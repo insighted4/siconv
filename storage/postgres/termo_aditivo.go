@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreateTermoAditivo(termoAditivo *schema.TermoAditivo) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetTermoAditivo(id string) (*schema.TermoAditivo, error) {
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListTermoAditivo(pagination *siconv.Pagination) ([]*schema.TermoAditivo, int, error) {
+	models := []*schema.TermoAditivo{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

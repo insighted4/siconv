@@ -11,3 +11,7 @@ func (s *service) CreatePlanoAplicacaoDetalhado(planoAplicacaoDetalhado *schema.
 func (s *service) GetPlanoAplicacaoDetalhado(id string) (*schema.PlanoAplicacaoDetalhado, error) {
 	return s.dao.GetPlanoAplicacaoDetalhado(id)
 }
+
+func (s *service) ListPlanoAplicacaoDetalhado(pagination *Pagination) ([]*schema.PlanoAplicacaoDetalhado, int, error) {
+	return s.dao.ListPlanoAplicacaoDetalhado(pagination)
+}

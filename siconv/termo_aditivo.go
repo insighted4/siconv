@@ -11,3 +11,7 @@ func (s *service) CreateTermoAditivo(termoAditivo *schema.TermoAditivo) (string,
 func (s *service) GetTermoAditivo(id string) (*schema.TermoAditivo, error) {
 	return s.dao.GetTermoAditivo(id)
 }
+
+func (s *service) ListTermoAditivo(pagination *Pagination) ([]*schema.TermoAditivo, int, error) {
+	return s.dao.ListTermoAditivo(pagination)
+}

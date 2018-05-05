@@ -11,3 +11,7 @@ func (s *service) CreateEmenda(emenda *schema.Emenda) (string, error) {
 func (s *service) GetEmenda(id string) (*schema.Emenda, error) {
 	return s.dao.GetEmenda(id)
 }
+
+func (s *service) ListEmenda(pagination *Pagination) ([]*schema.Emenda, int, error) {
+	return s.dao.ListEmenda(pagination)
+}

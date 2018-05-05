@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreateEmenda(emenda *schema.Emenda) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetEmenda(id string) (*schema.Emenda, error) {
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListEmenda(pagination *siconv.Pagination) ([]*schema.Emenda, int, error) {
+	models := []*schema.Emenda{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

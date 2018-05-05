@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreateMetaCronoFisico(metaCronoFisico *schema.MetaCronoFisico) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetMetaCronoFisico(id string) (*schema.MetaCronoFisico, err
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListMetaCronoFisico(pagination *siconv.Pagination) ([]*schema.MetaCronoFisico, int, error) {
+	models := []*schema.MetaCronoFisico{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

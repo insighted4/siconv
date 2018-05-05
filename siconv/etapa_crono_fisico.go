@@ -11,3 +11,7 @@ func (s *service) CreateEtapaCronoFisico(etapaCronoFisico *schema.EtapaCronoFisi
 func (s *service) GetEtapaCronoFisico(id string) (*schema.EtapaCronoFisico, error) {
 	return s.dao.GetEtapaCronoFisico(id)
 }
+
+func (s *service) ListEtapaCronoFisico(pagination *Pagination) ([]*schema.EtapaCronoFisico, int, error) {
+	return s.dao.ListEtapaCronoFisico(pagination)
+}

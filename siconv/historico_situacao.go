@@ -11,3 +11,7 @@ func (s *service) CreateHistoricoSituacao(historicoSituacao *schema.HistoricoSit
 func (s *service) GetHistoricoSituacao(id string) (*schema.HistoricoSituacao, error) {
 	return s.dao.GetHistoricoSituacao(id)
 }
+
+func (s *service) ListHistoricoSituacao(pagination *Pagination) ([]*schema.HistoricoSituacao, int, error) {
+	return s.dao.ListHistoricoSituacao(pagination)
+}

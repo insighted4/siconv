@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreateConvenio(convenio *schema.Convenio) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetConvenio(id string) (*schema.Convenio, error) {
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListConvenio(pagination *siconv.Pagination) ([]*schema.Convenio, int, error) {
+	models := []*schema.Convenio{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

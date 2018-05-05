@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreateProrrogaOficio(prorrogaOficio *schema.ProrrogaOficio) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetProrrogaOficio(id string) (*schema.ProrrogaOficio, error
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListProrrogaOficio(pagination *siconv.Pagination) ([]*schema.ProrrogaOficio, int, error) {
+	models := []*schema.ProrrogaOficio{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

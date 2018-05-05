@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"path"
 
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/schema"
 	"github.com/insighted4/siconv/siconv"
@@ -46,6 +48,19 @@ func (s *server) GetTermoAditivoHandler(c *gin.Context) {
 		location := path.Join(Prefix, "termo-aditivos", termoAditivo.ID)
 		c.Header("Location", location)
 		c.JSON(http.StatusOK, termoAditivo)
+	default:
+		s.logger.Error(err)
+		abort(c, http.StatusInternalServerError, err.Error())
+	}
+}
+
+func (s *server) ListTermoAditivoHandler(c *gin.Context) {
+	pagination := getPagination(c)
+	models, total, err := s.service.ListTermoAditivo(pagination)
+	switch err {
+	case nil:
+		c.Header("X-Total-Count", strconv.Itoa(total))
+		c.JSON(http.StatusOK, models)
 	default:
 		s.logger.Error(err)
 		abort(c, http.StatusInternalServerError, err.Error())

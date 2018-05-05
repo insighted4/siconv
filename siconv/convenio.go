@@ -11,3 +11,7 @@ func (s *service) CreateConvenio(convenio *schema.Convenio) (string, error) {
 func (s *service) GetConvenio(id string) (*schema.Convenio, error) {
 	return s.dao.GetConvenio(id)
 }
+
+func (s *service) ListConvenio(pagination *Pagination) ([]*schema.Convenio, int, error) {
+	return s.dao.ListConvenio(pagination)
+}

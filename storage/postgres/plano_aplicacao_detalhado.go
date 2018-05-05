@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreatePlanoAplicacaoDetalhado(planoAplicacaoDetalhado *schema.PlanoAplicacaoDetalhado) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetPlanoAplicacaoDetalhado(id string) (*schema.PlanoAplicac
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListPlanoAplicacaoDetalhado(pagination *siconv.Pagination) ([]*schema.PlanoAplicacaoDetalhado, int, error) {
+	models := []*schema.PlanoAplicacaoDetalhado{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

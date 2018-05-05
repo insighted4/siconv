@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreateIngressoContrapartida(ingressoContraPartida *schema.IngressoContrapartida) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetIngressoContrapartida(id string) (*schema.IngressoContra
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListIngressoContrapartida(pagination *siconv.Pagination) ([]*schema.IngressoContrapartida, int, error) {
+	models := []*schema.IngressoContrapartida{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

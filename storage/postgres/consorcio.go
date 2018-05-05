@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (dao *postgres) CreateConsorcio(consorcio *schema.Consorcio) (string, error) {
@@ -17,4 +18,10 @@ func (dao *postgres) GetConsorcio(id string) (*schema.Consorcio, error) {
 	_, err := dao.get(&model, id)
 
 	return &model, err
+}
+
+func (dao *postgres) ListConsorcio(pagination *siconv.Pagination) ([]*schema.Consorcio, int, error) {
+	models := []*schema.Consorcio{nil}
+	_, count, err := dao.selectAndCount(&models, pagination)
+	return models, count, err
 }

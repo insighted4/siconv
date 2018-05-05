@@ -36,6 +36,7 @@ func Int(value string) int {
 
 func NewConsorcio(row map[string]string) *schema.Consorcio {
 	return &schema.Consorcio{
+		StorageModel:           schema.StorageModel{ID: row["id"]},
 		ID_PROPOSTA:            row["id_proposta"],
 		CNPJ_CONSORCIO:         row["cnpj_consorcio"],
 		NOME_CONSORCIO:         row["nome_consorcio"],
@@ -50,6 +51,7 @@ func NewConsorcio(row map[string]string) *schema.Consorcio {
 
 func NewConvenio(row map[string]string) *schema.Convenio {
 	return &schema.Convenio{
+		StorageModel:              schema.StorageModel{ID: row["id"]},
 		NR_CONVENIO:               row["nr_convenio"],
 		ID_PROPOSTA:               row["id_proposta"],
 		DIA_ASSIN_CONV:            Date(row["dia_assin_conv"]),
@@ -84,6 +86,7 @@ func NewConvenio(row map[string]string) *schema.Convenio {
 
 func NewDesembolso(row map[string]string) *schema.Desembolso {
 	return &schema.Desembolso{
+		StorageModel:            schema.StorageModel{ID: row["id"]},
 		NR_CONVENIO:             row["nr_convenio"],
 		DT_ULT_DESEMBOLSO:       Date(row["dt_ult_desembolso"]),
 		QTD_DIAS_SEM_DESEMBOLSO: Int(row["qtd_dias_sem_desembolso"]),
@@ -98,6 +101,7 @@ func NewDesembolso(row map[string]string) *schema.Desembolso {
 
 func NewEmenda(row map[string]string) *schema.Emenda {
 	return &schema.Emenda{
+		StorageModel:                  schema.StorageModel{ID: row["id"]},
 		ID_PROPOSTA:                   row["id_proposta"],
 		QUALIF_PROPONENTE:             row["qualif_proponente"],
 		COD_PROGRAMA_EMENDA:           row["cod_programa_emenda"],
@@ -113,6 +117,7 @@ func NewEmenda(row map[string]string) *schema.Emenda {
 
 func NewEmpenho(row map[string]string) *schema.Empenho {
 	return &schema.Empenho{
+		StorageModel:          schema.StorageModel{ID: row["id"]},
 		ID_EMPENHO:            row["id_empenho"],
 		NR_EMPENHO:            row["nr_empenho"],
 		TIPO_NOTA:             row["tipo_nota"],
@@ -127,6 +132,7 @@ func NewEmpenho(row map[string]string) *schema.Empenho {
 
 func NewEmpenhoDesembolso(row map[string]string) *schema.EmpenhoDesembolso {
 	return &schema.EmpenhoDesembolso{
+		StorageModel:  schema.StorageModel{ID: row["id"]},
 		ID_DESEMBOLSO: row["id_desembolso"],
 		ID_EMPENHO:    row["id_empenho"],
 		VALOR_GRUPO:   Float64(row["valor_grupo"]),
@@ -135,6 +141,7 @@ func NewEmpenhoDesembolso(row map[string]string) *schema.EmpenhoDesembolso {
 
 func NewEtapaCronoFisico(row map[string]string) *schema.EtapaCronoFisico {
 	return &schema.EtapaCronoFisico{
+		StorageModel:           schema.StorageModel{ID: row["id"]},
 		ID_META:                row["id_meta"],
 		ID_ETAPA:               row["id_etapa"],
 		NR_ETAPA:               row["nr_etapa"],
@@ -153,6 +160,7 @@ func NewEtapaCronoFisico(row map[string]string) *schema.EtapaCronoFisico {
 
 func NewHistoricoSituacao(row map[string]string) *schema.HistoricoSituacao {
 	return &schema.HistoricoSituacao{
+		StorageModel:       schema.StorageModel{ID: row["id"]},
 		ID_PROPOSTA:        row["id_proposta"],
 		NR_CONVENIO:        row["nr_convenio"],
 		DIA_HISTORICO_SIT:  Date(row["dia_historico_sit"]),
@@ -164,6 +172,7 @@ func NewHistoricoSituacao(row map[string]string) *schema.HistoricoSituacao {
 
 func NewIngressoContrapartida(row map[string]string) *schema.IngressoContrapartida {
 	return &schema.IngressoContrapartida{
+		StorageModel:              schema.StorageModel{ID: row["id"]},
 		NR_CONVENIO:               row["nr_convenio"],
 		DT_INGRESSO_CONTRAPARTIDA: Date(row["dt_ingresso_contrapartida"]),
 		VL_INGRESSO_CONTRAPARTIDA: Float64(row["vl_ingresso_contrapartida"]),
@@ -172,6 +181,7 @@ func NewIngressoContrapartida(row map[string]string) *schema.IngressoContraparti
 
 func NewMetaCronoFisico(row map[string]string) *schema.MetaCronoFisico {
 	return &schema.MetaCronoFisico{
+		StorageModel:          schema.StorageModel{ID: row["id"]},
 		ID_META:               row["id_meta"],
 		NR_CONVENIO:           row["nr_convenio"],
 		COD_PROGRAMA:          row["cod_programa"],
@@ -193,6 +203,7 @@ func NewMetaCronoFisico(row map[string]string) *schema.MetaCronoFisico {
 
 func NewOBTVConvenente(row map[string]string) *schema.OBTVConvenente {
 	return &schema.OBTVConvenente{
+		StorageModel:                 schema.StorageModel{ID: row["id"]},
 		NR_MOV_FIN:                   row["nr_mov_fin"],
 		IDENTIF_FAVORECIDO_OBTV_CONV: row["identif_favorecido_obtv_conv"],
 		NM_FAVORECIDO_OBTV_CONV:      row["nm_favorecido_obtv_conv"],
@@ -203,6 +214,7 @@ func NewOBTVConvenente(row map[string]string) *schema.OBTVConvenente {
 
 func NewPagamento(row map[string]string) *schema.Pagamento {
 	return &schema.Pagamento{
+		StorageModel:       schema.StorageModel{ID: row["id"]},
 		NR_MOV_FIN:         row["nr_mov_fin"],
 		NR_CONVENIO:        row["nr_convenio"],
 		IDENTIF_FORNECEDOR: row["identif_fornecedor"],
@@ -217,6 +229,7 @@ func NewPagamento(row map[string]string) *schema.Pagamento {
 
 func NewPlanoAplicacaoDetalhado(row map[string]string) *schema.PlanoAplicacaoDetalhado {
 	return &schema.PlanoAplicacaoDetalhado{
+		StorageModel:        schema.StorageModel{ID: row["id"]},
 		ID_PROPOSTA:         row["id_proposta"],
 		SIGLA:               row["sigla"],
 		MUNICIPIO:           row["municipio"],
@@ -235,6 +248,7 @@ func NewPlanoAplicacaoDetalhado(row map[string]string) *schema.PlanoAplicacaoDet
 
 func NewPrograma(row map[string]string) *schema.Programa {
 	return &schema.Programa{
+		StorageModel:               schema.StorageModel{ID: row["id"]},
 		COD_ORGAO_SUP_PROGRAMA:     row["cod_orgao_sup_programa"],
 		DESC_ORGAO_SUP_PROGRAMA:    row["desc_orgao_sup_programa"],
 		ID_PROGRAMA:                row["id_programa"],
@@ -258,13 +272,15 @@ func NewPrograma(row map[string]string) *schema.Programa {
 
 func NewProgramaProposta(row map[string]string) *schema.ProgramaProposta {
 	return &schema.ProgramaProposta{
-		ID_PROGRAMA: row["id_programa"],
-		ID_PROPOSTA: row["id_proposta"],
+		StorageModel: schema.StorageModel{ID: row["id"]},
+		ID_PROGRAMA:  row["id_programa"],
+		ID_PROPOSTA:  row["id_proposta"],
 	}
 }
 
 func NewProponente(row map[string]string) *schema.Proponente {
 	return &schema.Proponente{
+		StorageModel:         schema.StorageModel{ID: row["id"]},
 		IDENTIF_PROPONENTE:   row["identif_proponente"],
 		NM_PROPONENTE:        row["nm_proponente"],
 		MUNICIPIO_PROPONENTE: row["municipio_proponente"],
@@ -280,6 +296,7 @@ func NewProponente(row map[string]string) *schema.Proponente {
 
 func NewProposta(row map[string]string) *schema.Proposta {
 	return &schema.Proposta{
+		StorageModel:               schema.StorageModel{ID: row["id"]},
 		ID_PROPOSTA:                row["id_proposta"],
 		UF_PROPONENTE:              row["uf_proponente"],
 		MUNIC_PROPONENTE:           row["munic_proponente"],
@@ -312,6 +329,7 @@ func NewProposta(row map[string]string) *schema.Proposta {
 
 func NewProrrogaOficio(row map[string]string) *schema.ProrrogaOficio {
 	return &schema.ProrrogaOficio{
+		StorageModel:           schema.StorageModel{ID: row["id"]},
 		NR_CONVENIO:            row["nr_convenio"],
 		NR_PRORROGA:            row["nr_prorroga"],
 		DT_INICIO_PRORROGA:     Date(row["dt_inicio_prorroga"]),
@@ -324,6 +342,7 @@ func NewProrrogaOficio(row map[string]string) *schema.ProrrogaOficio {
 
 func NewTermoAditivo(row map[string]string) *schema.TermoAditivo {
 	return &schema.TermoAditivo{
+		StorageModel:        schema.StorageModel{ID: row["id"]},
 		NR_CONVENIO:         row["nr_convenio"],
 		NUMERO_TA:           row["numero_ta"],
 		TIPO_TA:             row["tipo_ta"],

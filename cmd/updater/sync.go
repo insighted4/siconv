@@ -9,6 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
+
+	"strconv"
 
 	"github.com/insighted4/siconv/client"
 	"github.com/insighted4/siconv/server"
@@ -56,11 +59,13 @@ func commandSync() *cobra.Command {
 				os.Exit(2)
 			}
 
+			start := time.Now()
 			logger = logger.WithField("component", "updater")
 			if err := syncFile(filename, cli, logger, maxWorkers, maxQueueSize); err != nil {
 				logger.Error(err)
 				os.Exit(1)
 			}
+			logger.Infof("Total: %.2min", time.Since(start).Minutes())
 		},
 	}
 
@@ -69,14 +74,13 @@ func commandSync() *cobra.Command {
 	cmd.Flags().StringVar(&token, "token", "", "Authentication token")
 	cmd.Flags().IntVar(&maxWorkers, "max-workers", 2, "Max workers")
 	cmd.Flags().IntVar(&maxQueueSize, "max-queue-size", 4, "Max queue size")
-	cmd.Flags().StringVar(&loggerLevel, "logger-level", "info", "Logger level")
-	cmd.Flags().StringVar(&loggerFormat, "logger-format", "text", "Logger format")
+	cmd.Flags().StringVar(&loggerLevel, "log-level", "info", "Logger level")
+	cmd.Flags().StringVar(&loggerFormat, "log-format", "text", "Logger format")
 
 	return &cmd
 }
 
 func syncFile(filename string, cli *client.Client, logger logrus.FieldLogger, maxWorkers int, maxQueueSize int) error {
-
 	// Initialize Workers
 	jobQueue := make(chan Job, maxQueueSize)
 	dispatcher := NewDispatcher(jobQueue, maxWorkers, logger)
@@ -151,6 +155,7 @@ func processZIP(file *zip.File, cli *client.Client, logger logrus.FieldLogger, j
 type HandlerFunc func(r map[string]string) (string, error)
 
 func processCSV(fileReader io.Reader, filename string, cli *client.Client, logger logrus.FieldLogger, jobQueue chan Job) error {
+	start := time.Now()
 	handler := NewHandler(filename, cli)
 	if handler == nil {
 		logger.Warnf("unrecognized filename: %s", filename)
@@ -179,7 +184,9 @@ func processCSV(fileReader io.Reader, filename string, cli *client.Client, logge
 			return err
 		}
 
-		row := map[string]string{}
+		row := map[string]string{
+			"id": strconv.Itoa(line),
+		}
 		for index, header := range headers {
 			h := strings.TrimSpace(strings.ToLower(header))
 			h = strings.Trim(h, "\xef\xbb\xbf") // Remove infamous BOM
@@ -200,8 +207,7 @@ func processCSV(fileReader io.Reader, filename string, cli *client.Client, logge
 	}
 
 	wg.Wait()
-	logger.Infof("Processed %s: %d lines", filename, line)
-
+	logger.Infof("Processed %s: %d lines took %.2fmin", filename, line, time.Since(start).Minutes())
 	return nil
 }
 
@@ -238,7 +244,11 @@ func NewHandler(filename string, c *client.Client) HandlerFunc {
 		}
 	case "siconv_historico_situacao.csv":
 		handler = func(row map[string]string) (string, error) {
-			return c.CreateHistoricoSituacao(NewHistoricoSituacao(row))
+			model := NewHistoricoSituacao(row)
+			if model.DIA_HISTORICO_SIT == nil || model.DIAS_HISTORICO_SIT == 0 {
+				return "(ignored)", nil
+			}
+			return c.CreateHistoricoSituacao(model)
 		}
 	case "siconv_ingresso_contrapartida.csv":
 		handler = func(row map[string]string) (string, error) {

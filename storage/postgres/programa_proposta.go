@@ -60,7 +60,7 @@ func (dao *postgres) ListProgramaProposta(idPrograma string, pagination *siconv.
 	`
 
 	countSql := "SELECT count(*) FROM programa_propostas WHERE id_programa = ?"
-	models := []*schema.Proposta{}
-	_, total, err := dao.list(&models, sql, countSql, pagination, idPrograma)
+	models := []*schema.Proposta{nil}
+	_, total, err := dao.query(&models, sql, countSql, pagination, idPrograma)
 	return models, total, err
 }

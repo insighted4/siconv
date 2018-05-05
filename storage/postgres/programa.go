@@ -61,7 +61,7 @@ func (dao *postgres) ListPrograma(idPrograma string, pagination *siconv.Paginati
 	`, where)
 
 	countSql := fmt.Sprintf("SELECT COUNT(*) FROM programas WHERE %s", where)
-	models := []*schema.Programa{}
-	_, total, err := dao.list(&models, sql, countSql, pagination, args...)
+	models := []*schema.Programa{nil}
+	_, total, err := dao.query(&models, sql, countSql, pagination, args...)
 	return models, total, err
 }

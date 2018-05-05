@@ -11,3 +11,7 @@ func (s *service) CreateProposta(proposta *schema.Proposta) (string, error) {
 func (s *service) GetProposta(id string) (*schema.Proposta, error) {
 	return s.dao.GetProposta(id)
 }
+
+func (s *service) ListProposta(pagination *Pagination) ([]*schema.Proposta, int, error) {
+	return s.dao.ListProposta(pagination)
+}

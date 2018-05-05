@@ -11,3 +11,7 @@ func (s *service) CreateProrrogaOficio(prorrogaOficio *schema.ProrrogaOficio) (s
 func (s *service) GetProrrogaOficio(id string) (*schema.ProrrogaOficio, error) {
 	return s.dao.GetProrrogaOficio(id)
 }
+
+func (s *service) ListProrrogaOficio(pagination *Pagination) ([]*schema.ProrrogaOficio, int, error) {
+	return s.dao.ListProrrogaOficio(pagination)
+}

@@ -4,6 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/siconv"
 )
 
 func (s *Client) CreateOBTVConvenente(obtvConvenente *schema.OBTVConvenente) (string, error) {
@@ -16,4 +17,11 @@ func (s *Client) GetOBTVConvenente(id string) (*schema.OBTVConvenente, error) {
 	var model schema.OBTVConvenente
 	_, err := s.get(&model, url, nil)
 	return &model, err
+}
+
+func (s *Client) ListOBTVConvenente(pagination *siconv.Pagination) ([]*schema.OBTVConvenente, int, error) {
+	url := path.Join(s.prefix, "obtv-convenentes")
+	var models []*schema.OBTVConvenente
+	total, err := s.get(&models, url, nil)
+	return models, total, err
 }
