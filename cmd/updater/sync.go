@@ -63,7 +63,7 @@ func commandSync() *cobra.Command {
 				logger.Error(err)
 				os.Exit(1)
 			}
-			logger.Infof("Total: %.2min", time.Since(start).Minutes())
+			logger.Infof("Total: %.2fmin", time.Since(start).Minutes())
 		},
 	}
 
