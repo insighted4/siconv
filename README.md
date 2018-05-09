@@ -4,6 +4,12 @@ O SICONV disponibiliza acesso livre às informações de Transferências Volunt�
 
 Ref.: http://portal.convenios.gov.br/download-de-dados
 
+## Database Schema
+
+Ref.: https://github.com/golang-migrate/migrate
+
+
+
 ## License
 
 [MIT](LICENSE)
