@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateDesembolso(desembolso *schema.Desembolso) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetDesembolso(id string) (*schema.Desembolso, error) {
 	return &model, err
 }
 
-func (s *Client) ListDesembolso(pagination *siconv.Pagination) ([]*schema.Desembolso, int, error) {
+func (s *Client) ListDesembolso(pagination *storage.Pagination) ([]*schema.Desembolso, int, error) {
 	url := path.Join(s.prefix, "desembolsos")
 	var models []*schema.Desembolso
 	total, err := s.get(&models, url, nil)

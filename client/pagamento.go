@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreatePagamento(pagamento *schema.Pagamento) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetPagamento(id string) (*schema.Pagamento, error) {
 	return &model, err
 }
 
-func (s *Client) ListPagamento(pagination *siconv.Pagination) ([]*schema.Pagamento, int, error) {
+func (s *Client) ListPagamento(pagination *storage.Pagination) ([]*schema.Pagamento, int, error) {
 	url := path.Join(s.prefix, "pagamentos")
 	var models []*schema.Pagamento
 	total, err := s.get(&models, url, nil)

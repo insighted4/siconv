@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateIngressoContrapartida(ingressoContraPartida *schema.IngressoContrapartida) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetIngressoContrapartida(id string) (*schema.IngressoContrapart
 	return &model, err
 }
 
-func (s *Client) ListIngressoContrapartida(pagination *siconv.Pagination) ([]*schema.IngressoContrapartida, int, error) {
+func (s *Client) ListIngressoContrapartida(pagination *storage.Pagination) ([]*schema.IngressoContrapartida, int, error) {
 	url := path.Join(s.prefix, "ingresso-contrapartidas")
 	var models []*schema.IngressoContrapartida
 	total, err := s.get(&models, url, nil)

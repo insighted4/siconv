@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *server) CreateProgramaPropostaHandler(c *gin.Context) {
@@ -22,7 +22,7 @@ func (s *server) CreateProgramaPropostaHandler(c *gin.Context) {
 	id, err := s.service.CreateProgramaProposta(&programaProposta)
 	if err != nil {
 		switch err {
-		case siconv.ErrAlreadyExists:
+		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
 		default:
 			abort(c, http.StatusInternalServerError, err.Error())
@@ -43,9 +43,9 @@ func (s *server) ListProgramaPropostaHandler(c *gin.Context) {
 	programa, err := s.service.GetPrograma(c.Param("id"))
 	if err != nil {
 		switch err {
-		case siconv.ErrNotFound:
+		case storage.ErrNotFound:
 			abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-		case siconv.ErrInvalidUUID:
+		case storage.ErrInvalidUUID:
 			abort(c, http.StatusBadRequest, err.Error())
 		default:
 			s.logger.Error(err)

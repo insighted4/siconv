@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (dao *postgres) CreateProponente(proponente *schema.Proponente) (string, error) {
@@ -20,7 +20,7 @@ func (dao *postgres) GetProponente(id string) (*schema.Proponente, error) {
 	return &model, err
 }
 
-func (dao *postgres) ListProponente(pagination *siconv.Pagination) ([]*schema.Proponente, int, error) {
+func (dao *postgres) ListProponente(pagination *storage.Pagination) ([]*schema.Proponente, int, error) {
 	models := []*schema.Proponente{nil}
 	_, count, err := dao.selectAndCount(&models, pagination)
 	return models, count, err

@@ -6,6 +6,7 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/insighted4/siconv/schema"
 	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,21 +28,21 @@ func (dao *postgres) insert(model schema.Model) (string, error) {
 }
 
 func (dao *postgres) get(model schema.Model, id string) (schema.Model, error) {
-	if !siconv.IsValidUUID(id) {
-		return nil, siconv.ErrInvalidUUID
+	if !storage.IsValidUUID(id) {
+		return nil, storage.ErrInvalidUUID
 	}
 
 	err := dao.db.Model(model).Where("id = ?", id).Select()
 	if err == pg.ErrNoRows {
-		return model, siconv.ErrNotFound
+		return model, storage.ErrNotFound
 	}
 
 	return model, err
 }
 
-func (dao *postgres) query(models interface{}, sql string, countSql string, pagination *siconv.Pagination, params ...interface{}) (interface{}, int, error) {
+func (dao *postgres) query(models interface{}, sql string, countSql string, pagination *storage.Pagination, params ...interface{}) (interface{}, int, error) {
 	if pagination == nil {
-		pagination = siconv.NewPagination(siconv.Limit, 0)
+		pagination = storage.NewPagination(storage.Limit, 0)
 	}
 
 	params = append(params, pagination.Limit)
@@ -60,9 +61,9 @@ func (dao *postgres) query(models interface{}, sql string, countSql string, pagi
 	return models, count, nil
 }
 
-func (dao *postgres) selectAndCount(model interface{}, pagination *siconv.Pagination) (interface{}, int, error) {
+func (dao *postgres) selectAndCount(model interface{}, pagination *storage.Pagination) (interface{}, int, error) {
 	if pagination == nil {
-		pagination = siconv.NewPagination(siconv.Limit, 0)
+		pagination = storage.NewPagination(storage.Limit, 0)
 	}
 
 	count, err := dao.db.Model(model).Limit(pagination.Limit).Order("line_ref").Offset(pagination.Offset).SelectAndCount()

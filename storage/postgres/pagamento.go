@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (dao *postgres) CreatePagamento(pagamento *schema.Pagamento) (string, error) {
@@ -20,7 +20,7 @@ func (dao *postgres) GetPagamento(id string) (*schema.Pagamento, error) {
 	return &model, err
 }
 
-func (dao *postgres) ListPagamento(pagination *siconv.Pagination) ([]*schema.Pagamento, int, error) {
+func (dao *postgres) ListPagamento(pagination *storage.Pagination) ([]*schema.Pagamento, int, error) {
 	models := []*schema.Pagamento{nil}
 	_, count, err := dao.selectAndCount(&models, pagination)
 	return models, count, err

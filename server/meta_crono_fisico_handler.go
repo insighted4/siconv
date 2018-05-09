@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *server) CreateMetaCronoFisicoHandler(c *gin.Context) {
@@ -22,7 +22,7 @@ func (s *server) CreateMetaCronoFisicoHandler(c *gin.Context) {
 	id, err := s.service.CreateMetaCronoFisico(&metaCronoFisico)
 	if err != nil {
 		switch err {
-		case siconv.ErrAlreadyExists:
+		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
 		default:
 			abort(c, http.StatusInternalServerError, err.Error())
@@ -40,9 +40,9 @@ func (s *server) CreateMetaCronoFisicoHandler(c *gin.Context) {
 func (s *server) GetMetaCronoFisicoHandler(c *gin.Context) {
 	model, err := s.service.GetMetaCronoFisico(c.Param("id"))
 	switch err {
-	case siconv.ErrNotFound:
+	case storage.ErrNotFound:
 		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-	case siconv.ErrInvalidUUID:
+	case storage.ErrInvalidUUID:
 		abort(c, http.StatusBadRequest, err.Error())
 	case nil:
 		location := path.Join(Prefix, "meta-crono-fisicos", model.ID)

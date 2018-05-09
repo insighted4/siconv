@@ -2,6 +2,7 @@ package siconv
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *service) CreateIngressoContrapartida(ingressoContraPartida *schema.IngressoContrapartida) (string, error) {
@@ -12,6 +13,6 @@ func (s *service) GetIngressoContrapartida(id string) (*schema.IngressoContrapar
 	return s.dao.GetIngressoContrapartida(id)
 }
 
-func (s *service) ListIngressoContrapartida(pagination *Pagination) ([]*schema.IngressoContrapartida, int, error) {
+func (s *service) ListIngressoContrapartida(pagination *storage.Pagination) ([]*schema.IngressoContrapartida, int, error) {
 	return s.dao.ListIngressoContrapartida(pagination)
 }

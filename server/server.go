@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 	"github.com/sirupsen/logrus"
 )
 
@@ -141,10 +142,10 @@ func New(cfg Config) (*server, error) {
 
 }
 
-func getPagination(c *gin.Context) *siconv.Pagination {
-	perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(siconv.Limit)))
+func getPagination(c *gin.Context) *storage.Pagination {
+	perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", strconv.Itoa(storage.Limit)))
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "0"))
-	return siconv.NewPagination(perPage, page)
+	return storage.NewPagination(perPage, page)
 }
 
 func abort(c *gin.Context, code int, message string) {

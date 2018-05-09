@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateConvenio(convenio *schema.Convenio) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetConvenio(id string) (*schema.Convenio, error) {
 	return &model, err
 }
 
-func (s *Client) ListConvenio(pagination *siconv.Pagination) ([]*schema.Convenio, int, error) {
+func (s *Client) ListConvenio(pagination *storage.Pagination) ([]*schema.Convenio, int, error) {
 	url := path.Join(s.prefix, "convenios")
 	var models []*schema.Convenio
 	total, err := s.get(&models, url, nil)

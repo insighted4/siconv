@@ -4,11 +4,10 @@ import (
 	"net/http"
 	"path"
 
-	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
+	"strconv"
 )
 
 func (s *server) CreateProponenteHandler(c *gin.Context) {
@@ -22,7 +21,7 @@ func (s *server) CreateProponenteHandler(c *gin.Context) {
 	id, err := s.service.CreateProponente(&proponente)
 	if err != nil {
 		switch err {
-		case siconv.ErrAlreadyExists:
+		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
 		default:
 			abort(c, http.StatusInternalServerError, err.Error())
@@ -40,9 +39,9 @@ func (s *server) CreateProponenteHandler(c *gin.Context) {
 func (s *server) GetProponenteHandler(c *gin.Context) {
 	model, err := s.service.GetProponente(c.Param("id"))
 	switch err {
-	case siconv.ErrNotFound:
+	case storage.ErrNotFound:
 		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-	case siconv.ErrInvalidUUID:
+	case storage.ErrInvalidUUID:
 		abort(c, http.StatusBadRequest, err.Error())
 	case nil:
 		location := path.Join(Prefix, "proponentes", model.ID)

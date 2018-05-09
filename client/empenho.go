@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateEmpenho(empenho *schema.Empenho) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetEmpenho(id string) (*schema.Empenho, error) {
 	return &model, err
 }
 
-func (s *Client) ListEmpenho(pagination *siconv.Pagination) ([]*schema.Empenho, int, error) {
+func (s *Client) ListEmpenho(pagination *storage.Pagination) ([]*schema.Empenho, int, error) {
 	url := path.Join(s.prefix, "empenhos")
 	var models []*schema.Empenho
 	total, err := s.get(&models, url, nil)

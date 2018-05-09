@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (dao *postgres) CreateDesembolso(desembolso *schema.Desembolso) (string, error) {
@@ -20,7 +20,7 @@ func (dao *postgres) GetDesembolso(id string) (*schema.Desembolso, error) {
 	return &model, err
 }
 
-func (dao *postgres) ListDesembolso(pagination *siconv.Pagination) ([]*schema.Desembolso, int, error) {
+func (dao *postgres) ListDesembolso(pagination *storage.Pagination) ([]*schema.Desembolso, int, error) {
 	models := []*schema.Desembolso{nil}
 	_, count, err := dao.selectAndCount(&models, pagination)
 	return models, count, err

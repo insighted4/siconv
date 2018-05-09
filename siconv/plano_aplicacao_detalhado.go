@@ -2,6 +2,7 @@ package siconv
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *service) CreatePlanoAplicacaoDetalhado(planoAplicacaoDetalhado *schema.PlanoAplicacaoDetalhado) (string, error) {
@@ -12,6 +13,6 @@ func (s *service) GetPlanoAplicacaoDetalhado(id string) (*schema.PlanoAplicacaoD
 	return s.dao.GetPlanoAplicacaoDetalhado(id)
 }
 
-func (s *service) ListPlanoAplicacaoDetalhado(pagination *Pagination) ([]*schema.PlanoAplicacaoDetalhado, int, error) {
+func (s *service) ListPlanoAplicacaoDetalhado(pagination *storage.Pagination) ([]*schema.PlanoAplicacaoDetalhado, int, error) {
 	return s.dao.ListPlanoAplicacaoDetalhado(pagination)
 }

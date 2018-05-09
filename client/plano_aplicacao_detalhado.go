@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreatePlanoAplicacaoDetalhado(planoAplicacaoDetalhado *schema.PlanoAplicacaoDetalhado) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetPlanoAplicacaoDetalhado(id string) (*schema.PlanoAplicacaoDe
 	return &model, err
 }
 
-func (s *Client) ListPlanoAplicacaoDetalhado(pagination *siconv.Pagination) ([]*schema.PlanoAplicacaoDetalhado, int, error) {
+func (s *Client) ListPlanoAplicacaoDetalhado(pagination *storage.Pagination) ([]*schema.PlanoAplicacaoDetalhado, int, error) {
 	url := path.Join(s.prefix, "plano-aplicacao-detalhados")
 	var models []*schema.PlanoAplicacaoDetalhado
 	total, err := s.get(&models, url, nil)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (dao *postgres) CreateProgramaProposta(programaProposta *schema.ProgramaProposta) (string, error) {
@@ -15,7 +15,7 @@ func (dao *postgres) CreateProgramaProposta(programaProposta *schema.ProgramaPro
 	return programaProposta.ID, nil
 }
 
-func (dao *postgres) ListProgramaProposta(idPrograma string, pagination *siconv.Pagination) ([]*schema.Proposta, int, error) {
+func (dao *postgres) ListProgramaProposta(idPrograma string, pagination *storage.Pagination) ([]*schema.Proposta, int, error) {
 	if idPrograma == "" {
 		return nil, 0, fmt.Errorf("id_programa is required")
 	}

@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (dao *postgres) CreateProposta(proposta *schema.Proposta) (string, error) {
@@ -20,7 +20,7 @@ func (dao *postgres) GetProposta(id string) (*schema.Proposta, error) {
 	return &model, err
 }
 
-func (dao *postgres) ListProposta(pagination *siconv.Pagination) ([]*schema.Proposta, int, error) {
+func (dao *postgres) ListProposta(pagination *storage.Pagination) ([]*schema.Proposta, int, error) {
 	models := []*schema.Proposta{nil}
 	_, count, err := dao.selectAndCount(&models, pagination)
 	return models, count, err

@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateProrrogaOficio(prorrogaOficio *schema.ProrrogaOficio) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetProrrogaOficio(id string) (*schema.ProrrogaOficio, error) {
 	return &model, err
 }
 
-func (s *Client) ListProrrogaOficio(pagination *siconv.Pagination) ([]*schema.ProrrogaOficio, int, error) {
+func (s *Client) ListProrrogaOficio(pagination *storage.Pagination) ([]*schema.ProrrogaOficio, int, error) {
 	url := path.Join(s.prefix, "prorroga-oficios")
 	var models []*schema.ProrrogaOficio
 	total, err := s.get(&models, url, nil)

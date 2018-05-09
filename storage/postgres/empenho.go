@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (dao *postgres) CreateEmpenho(empenho *schema.Empenho) (string, error) {
@@ -20,7 +20,7 @@ func (dao *postgres) GetEmpenho(id string) (*schema.Empenho, error) {
 	return &model, err
 }
 
-func (dao *postgres) ListEmpenho(pagination *siconv.Pagination) ([]*schema.Empenho, int, error) {
+func (dao *postgres) ListEmpenho(pagination *storage.Pagination) ([]*schema.Empenho, int, error) {
 	models := []*schema.Empenho{nil}
 	_, count, err := dao.selectAndCount(&models, pagination)
 	return models, count, err

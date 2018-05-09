@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateProponente(proponente *schema.Proponente) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetProponente(id string) (*schema.Proponente, error) {
 	return &model, err
 }
 
-func (s *Client) ListProponente(pagination *siconv.Pagination) ([]*schema.Proponente, int, error) {
+func (s *Client) ListProponente(pagination *storage.Pagination) ([]*schema.Proponente, int, error) {
 	url := path.Join(s.prefix, "proponentes")
 	var models []*schema.Proponente
 	total, err := s.get(&models, url, nil)

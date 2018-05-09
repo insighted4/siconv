@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreatePrograma(programa *schema.Programa) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetPrograma(id string) (*schema.Programa, error) {
 	return &model, err
 }
 
-func (s *Client) ListPrograma(idPrograma string, pagination *siconv.Pagination) ([]*schema.Programa, int, error) {
+func (s *Client) ListPrograma(idPrograma string, pagination *storage.Pagination) ([]*schema.Programa, int, error) {
 	url := path.Join(s.prefix, "programas")
 	params := map[string]string{"id_programa": idPrograma}
 	var models []*schema.Programa

@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateConsorcio(consorcio *schema.Consorcio) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetConsorcio(id string) (*schema.Consorcio, error) {
 	return &model, err
 }
 
-func (s *Client) ListConsorcio(pagination *siconv.Pagination) ([]*schema.Consorcio, int, error) {
+func (s *Client) ListConsorcio(pagination *storage.Pagination) ([]*schema.Consorcio, int, error) {
 	url := path.Join(s.prefix, "consorcios")
 	var models []*schema.Consorcio
 	total, err := s.get(&models, url, nil)

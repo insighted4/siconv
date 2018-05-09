@@ -2,7 +2,7 @@ package postgres
 
 import (
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (dao *postgres) CreateEtapaCronoFisico(etapaCronoFisico *schema.EtapaCronoFisico) (string, error) {
@@ -20,7 +20,7 @@ func (dao *postgres) GetEtapaCronoFisico(id string) (*schema.EtapaCronoFisico, e
 	return &model, err
 }
 
-func (dao *postgres) ListEtapaCronoFisico(pagination *siconv.Pagination) ([]*schema.EtapaCronoFisico, int, error) {
+func (dao *postgres) ListEtapaCronoFisico(pagination *storage.Pagination) ([]*schema.EtapaCronoFisico, int, error) {
 	models := []*schema.EtapaCronoFisico{nil}
 	_, count, err := dao.selectAndCount(&models, pagination)
 	return models, count, err

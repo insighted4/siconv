@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (dao *postgres) CreatePrograma(programa *schema.Programa) (string, error) {
@@ -22,7 +22,7 @@ func (dao *postgres) GetPrograma(id string) (*schema.Programa, error) {
 	return &model, err
 }
 
-func (dao *postgres) ListPrograma(idPrograma string, pagination *siconv.Pagination) ([]*schema.Programa, int, error) {
+func (dao *postgres) ListPrograma(idPrograma string, pagination *storage.Pagination) ([]*schema.Programa, int, error) {
 	var args []interface{}
 	where := "true"
 

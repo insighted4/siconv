@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateMetaCronoFisico(metaCronoFisico *schema.MetaCronoFisico) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetMetaCronoFisico(id string) (*schema.MetaCronoFisico, error) 
 	return &model, err
 }
 
-func (s *Client) ListMetaCronoFisico(pagination *siconv.Pagination) ([]*schema.MetaCronoFisico, int, error) {
+func (s *Client) ListMetaCronoFisico(pagination *storage.Pagination) ([]*schema.MetaCronoFisico, int, error) {
 	url := path.Join(s.prefix, "meta-crono-fisicos")
 	var models []*schema.MetaCronoFisico
 	total, err := s.get(&models, url, nil)

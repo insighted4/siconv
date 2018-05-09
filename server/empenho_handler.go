@@ -3,12 +3,11 @@ package server
 import (
 	"net/http"
 	"path"
-
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *server) CreateEmpenhoHanler(c *gin.Context) {
@@ -22,7 +21,7 @@ func (s *server) CreateEmpenhoHanler(c *gin.Context) {
 	id, err := s.service.CreateEmpenho(&empenho)
 	if err != nil {
 		switch err {
-		case siconv.ErrAlreadyExists:
+		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
 		default:
 			abort(c, http.StatusInternalServerError, err.Error())
@@ -40,9 +39,9 @@ func (s *server) CreateEmpenhoHanler(c *gin.Context) {
 func (s *server) GetEmpenhoHandler(c *gin.Context) {
 	model, err := s.service.GetEmpenho(c.Param("id"))
 	switch err {
-	case siconv.ErrNotFound:
+	case storage.ErrNotFound:
 		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-	case siconv.ErrInvalidUUID:
+	case storage.ErrInvalidUUID:
 		abort(c, http.StatusBadRequest, err.Error())
 	case nil:
 		location := path.Join(Prefix, "empenhos", model.ID)

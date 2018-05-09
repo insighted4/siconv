@@ -4,7 +4,7 @@ import (
 	"path"
 
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *Client) CreateEmenda(emenda *schema.Emenda) (string, error) {
@@ -19,7 +19,7 @@ func (s *Client) GetEmenda(id string) (*schema.Emenda, error) {
 	return &model, err
 }
 
-func (s *Client) ListEmenda(pagination *siconv.Pagination) ([]*schema.Emenda, int, error) {
+func (s *Client) ListEmenda(pagination *storage.Pagination) ([]*schema.Emenda, int, error) {
 	url := path.Join(s.prefix, "emendas")
 	var models []*schema.Emenda
 	total, err := s.get(&models, url, nil)

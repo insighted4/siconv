@@ -2,6 +2,7 @@ package siconv
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *service) CreateHistoricoSituacao(historicoSituacao *schema.HistoricoSituacao) (string, error) {
@@ -12,6 +13,6 @@ func (s *service) GetHistoricoSituacao(id string) (*schema.HistoricoSituacao, er
 	return s.dao.GetHistoricoSituacao(id)
 }
 
-func (s *service) ListHistoricoSituacao(pagination *Pagination) ([]*schema.HistoricoSituacao, int, error) {
+func (s *service) ListHistoricoSituacao(pagination *storage.Pagination) ([]*schema.HistoricoSituacao, int, error) {
 	return s.dao.ListHistoricoSituacao(pagination)
 }

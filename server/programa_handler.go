@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *server) CreateProgramaHandler(c *gin.Context) {
@@ -21,7 +21,7 @@ func (s *server) CreateProgramaHandler(c *gin.Context) {
 
 	id, err := s.service.CreatePrograma(&programa)
 	switch err {
-	case siconv.ErrAlreadyExists:
+	case storage.ErrAlreadyExists:
 		abort(c, http.StatusUnprocessableEntity, err.Error())
 	case nil:
 		location := path.Join(Prefix, "programas", id)
@@ -36,9 +36,9 @@ func (s *server) CreateProgramaHandler(c *gin.Context) {
 func (s *server) GetProgramaHandler(c *gin.Context) {
 	programa, err := s.service.GetPrograma(c.Param("id"))
 	switch err {
-	case siconv.ErrNotFound:
+	case storage.ErrNotFound:
 		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-	case siconv.ErrInvalidUUID:
+	case storage.ErrInvalidUUID:
 		abort(c, http.StatusBadRequest, err.Error())
 	case nil:
 		location := path.Join(Prefix, "programas", programa.ID)

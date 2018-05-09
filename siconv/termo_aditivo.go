@@ -2,6 +2,7 @@ package siconv
 
 import (
 	"github.com/insighted4/siconv/schema"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *service) CreateTermoAditivo(termoAditivo *schema.TermoAditivo) (string, error) {
@@ -12,6 +13,6 @@ func (s *service) GetTermoAditivo(id string) (*schema.TermoAditivo, error) {
 	return s.dao.GetTermoAditivo(id)
 }
 
-func (s *service) ListTermoAditivo(pagination *Pagination) ([]*schema.TermoAditivo, int, error) {
+func (s *service) ListTermoAditivo(pagination *storage.Pagination) ([]*schema.TermoAditivo, int, error) {
 	return s.dao.ListTermoAditivo(pagination)
 }

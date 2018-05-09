@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
+	"github.com/insighted4/siconv/storage"
 )
 
 func (s *server) CreateEmpenhoDesembolsoHandler(c *gin.Context) {
@@ -22,7 +22,7 @@ func (s *server) CreateEmpenhoDesembolsoHandler(c *gin.Context) {
 	id, err := s.service.CreateEmpenhoDesembolso(&empenhoDesembolso)
 	if err != nil {
 		switch err {
-		case siconv.ErrAlreadyExists:
+		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
 		default:
 			abort(c, http.StatusInternalServerError, err.Error())
