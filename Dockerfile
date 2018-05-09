@@ -14,7 +14,9 @@ RUN set -x \
     && go get github.com/axw/gocov/gocov \
     && go get github.com/golang/lint \
     && go get github.com/t-yuki/gocover-cobertura \
-    && go get github.com/tebeka/go2xunit
+    && go get github.com/tebeka/go2xunit \
+    && go get github.com/golang-migrate/migrate/cli
+    && go get github.com/lib/pq
 
 COPY . /go/src/github.com/insighted4/siconv
 WORKDIR /go/src/github.com/insighted4/siconv
@@ -26,8 +28,7 @@ RUN set -x \
     && cp -r ./docs /usr/share/siconv/. \
     && cp -r ./release/bin /usr/share/siconv/. \
     && cp -r ./results /usr/share/siconv/. \
-    && ln -s /usr/share/siconv/bin/server /usr/bin/server \
-    && ln -s /usr/share/siconv/bin/updater /usr/bin/updater \
+    && go build -tags 'postgres' -o /usr/local/bin/migrate github.com/golang-migrate/migrate/cli \
     && echo "Build complete."
 
 # Release
@@ -42,11 +43,12 @@ RUN set -x \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/share/siconv /usr/share/siconv
-RUN ln -s /usr/share/siconv/bin/server /usr/bin/server
-RUN ln -s /usr/share/siconv/bin/updater /usr/bin/updater
+RUN ln -s /usr/share/siconv/bin/database /usr/local/bin/database
+RUN ln -s /usr/share/siconv/bin/server /usr/local/bin/server
+RUN ln -s /usr/share/siconv/bin/updater /usr/local/bin/updater
+
+COPY --from=builder /usr/local/bin/migrate /usr/local/bin/migrate
 
 WORKDIR /usr/share/siconv
-
 EXPOSE 8080
-
 CMD ["server", "start"]

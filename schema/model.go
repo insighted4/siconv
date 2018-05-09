@@ -4,6 +4,11 @@ import "time"
 
 type Model interface {
 	GetID() string
+	SetID(id string)
+	GetLineRef() int
+	SetLineRef(lineRef int)
+	GetFileRef() string
+	SetFileRef(fileRef string)
 }
 
 type StorageModel struct {
@@ -16,6 +21,26 @@ type StorageModel struct {
 
 func (m *StorageModel) GetID() string {
 	return m.ID
+}
+
+func (m *StorageModel) SetID(id string) {
+	m.ID = id
+}
+
+func (m *StorageModel) GetLineRef() int {
+	return m.LineRef
+}
+
+func (m *StorageModel) SetLineRef(lineRef int) {
+	m.LineRef = lineRef
+}
+
+func (m *StorageModel) GetFileRef() string {
+	return m.FileRef
+}
+
+func (m *StorageModel) SetFileRef(fileRef string) {
+	m.FileRef = fileRef
 }
 
 type Consorcio struct {
