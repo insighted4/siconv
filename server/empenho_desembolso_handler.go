@@ -12,15 +12,14 @@ import (
 )
 
 func (s *server) CreateEmpenhoDesembolsoHandler(c *gin.Context) {
-	var empenhoDesembolso schema.EmpenhoDesembolso
-	if err := c.BindJSON(&empenhoDesembolso); err != nil {
+	var model schema.EmpenhoDesembolso
+	if err := c.BindJSON(&model); err != nil {
 		s.logger.Error(err)
 		abort(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := s.service.CreateEmpenhoDesembolso(&empenhoDesembolso)
-	if err != nil {
+	if err := s.service.Create(&model); err != nil {
 		switch err {
 		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
@@ -32,14 +31,39 @@ func (s *server) CreateEmpenhoDesembolsoHandler(c *gin.Context) {
 		return
 	}
 
-	location := path.Join(Prefix, "empenho-desembolsos", id)
+	location := path.Join(Prefix, "empenho-desembolsos", strconv.Itoa(model.GetID()))
 	c.Header("Location", location)
 	c.Writer.WriteHeader(http.StatusCreated)
 }
 
+func (s *server) GetEmpenhoDesembolsoHandler(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		abort(c, http.StatusBadRequest, "ID should be an integer")
+		return
+	}
+
+	model := &schema.EmpenhoDesembolso{StorageModel: schema.StorageModel{ID: id}}
+	switch err := s.service.Get(model); err {
+	case storage.ErrNotFound:
+		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
+	case storage.ErrInvalidID:
+		abort(c, http.StatusBadRequest, err.Error())
+	case nil:
+		location := path.Join(Prefix, "empenho-desembolsos", strconv.Itoa(model.GetID()))
+		c.Header("Location", location)
+		c.JSON(http.StatusOK, model)
+	default:
+		s.logger.Error(err)
+		abort(c, http.StatusInternalServerError, err.Error())
+	}
+}
+
 func (s *server) ListEmpenhoDesembolsoHandler(c *gin.Context) {
 	pagination := getPagination(c)
-	models, total, err := s.service.ListEmpenhoDesembolso(pagination)
+
+	models := []*schema.EmpenhoDesembolso{nil}
+	total, err := s.service.List(&models, pagination)
 	switch err {
 	case nil:
 		c.Header("X-Total-Count", strconv.Itoa(total))

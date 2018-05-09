@@ -77,11 +77,11 @@ func commandStart() *cobra.Command {
 func start(token string, pgOptions *pg.Options, logger logrus.FieldLogger) error {
 	logger.Infoln("Starting SICONV API")
 	logger.Infof("Database: postgres://%s/%s", pgOptions.Addr, pgOptions.Database)
-	dao := postgres.New(pgOptions, logger)
+	pg := postgres.New(pgOptions, logger)
 
 	cfg := server.Config{
 		Token:   token,
-		Storage: dao,
+		Storage: pg,
 		Logger:  logger,
 	}
 

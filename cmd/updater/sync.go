@@ -150,7 +150,7 @@ func processZIP(file *zip.File, cli *client.Client, logger logrus.FieldLogger, j
 	return processCSV(fileReader, filename, cli, logger, jobQueue)
 }
 
-type HandlerFunc func(r map[string]string) (string, error)
+type HandlerFunc func(r map[string]string) error
 
 func processCSV(fileReader io.Reader, filename string, cli *client.Client, logger logrus.FieldLogger, jobQueue chan Job) error {
 	start := time.Now()
@@ -214,84 +214,84 @@ func NewHandler(filename string, c *client.Client) HandlerFunc {
 	var handler HandlerFunc
 	switch filename {
 	case "siconv_consorcios.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateConsorcio(NewConsorcio(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewConsorcio(row))
 		}
 	case "siconv_convenio.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateConvenio(NewConvenio(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewConvenio(row))
 		}
 	case "siconv_desembolso.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateDesembolso(NewDesembolso(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewDesembolso(row))
 		}
 	case "siconv_emenda.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateEmenda(NewEmenda(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewEmenda(row))
 		}
 	case "siconv_empenho.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateEmpenho(NewEmpenho(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewEmpenho(row))
 		}
 	case "siconv_empenho_desembolso.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateEmpenhoDesembolso(NewEmpenhoDesembolso(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewEmpenhoDesembolso(row))
 		}
 	case "siconv_etapa_crono_fisico.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateEtapaCronoFisico(NewEtapaCronoFisico(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewEtapaCronoFisico(row))
 		}
 	case "siconv_historico_situacao.csv":
-		handler = func(row map[string]string) (string, error) {
+		handler = func(row map[string]string) error {
 			model := NewHistoricoSituacao(row)
 			if model.DIA_HISTORICO_SIT == nil || model.DIAS_HISTORICO_SIT == 0 {
-				return "(ignored)", nil
+				return nil
 			}
-			return c.CreateHistoricoSituacao(model)
+			return c.Create(model)
 		}
 	case "siconv_ingresso_contrapartida.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateIngressoContrapartida(NewIngressoContrapartida(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewIngressoContrapartida(row))
 		}
 	case "siconv_meta_crono_fisico.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateMetaCronoFisico(NewMetaCronoFisico(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewMetaCronoFisico(row))
 		}
 	case "siconv_obtv_convenente.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateOBTVConvenente(NewOBTVConvenente(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewOBTVConvenente(row))
 		}
 	case "siconv_pagamento.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreatePagamento(NewPagamento(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewPagamento(row))
 		}
 	case "siconv_plano_aplicacao_detalhado.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreatePlanoAplicacaoDetalhado(NewPlanoAplicacaoDetalhado(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewPlanoAplicacaoDetalhado(row))
 		}
 	case "siconv_programa.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreatePrograma(NewPrograma(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewPrograma(row))
 		}
 	case "siconv_programa_proposta.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateProgramaProposta(NewProgramaProposta(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewProgramaProposta(row))
 		}
 	case "siconv_proponentes.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateProponente(NewProponente(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewProponente(row))
 		}
 	case "siconv_proposta.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateProposta(NewProposta(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewProposta(row))
 		}
 	case "siconv_prorroga_oficio.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateProrrogaOficio(NewProrrogaOficio(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewProrrogaOficio(row))
 		}
 	case "siconv_termo_aditivo.csv":
-		handler = func(row map[string]string) (string, error) {
-			return c.CreateTermoAditivo(NewTermoAditivo(row))
+		handler = func(row map[string]string) error {
+			return c.Create(NewTermoAditivo(row))
 		}
 	}
 

@@ -12,15 +12,14 @@ import (
 )
 
 func (s *server) CreateDesembolsoHandler(c *gin.Context) {
-	var desembolso schema.Desembolso
-	if err := c.BindJSON(&desembolso); err != nil {
+	var model schema.Desembolso
+	if err := c.BindJSON(&model); err != nil {
 		s.logger.Error(err)
 		abort(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := s.service.CreateDesembolso(&desembolso)
-	if err != nil {
+	if err := s.service.Create(&model); err != nil {
 		switch err {
 		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
@@ -32,20 +31,26 @@ func (s *server) CreateDesembolsoHandler(c *gin.Context) {
 		return
 	}
 
-	location := path.Join(Prefix, "desembolsos", id)
+	location := path.Join(Prefix, "desembolsos", strconv.Itoa(model.GetID()))
 	c.Header("Location", location)
 	c.Writer.WriteHeader(http.StatusCreated)
 }
 
 func (s *server) GetDesembolsoHandler(c *gin.Context) {
-	model, err := s.service.GetDesembolso(c.Param("id"))
-	switch err {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		abort(c, http.StatusBadRequest, "ID should be an integer")
+		return
+	}
+
+	model := &schema.Desembolso{StorageModel: schema.StorageModel{ID: id}}
+	switch err := s.service.Get(model); err {
 	case storage.ErrNotFound:
 		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-	case storage.ErrInvalidUUID:
+	case storage.ErrInvalidID:
 		abort(c, http.StatusBadRequest, err.Error())
 	case nil:
-		location := path.Join(Prefix, "desembolsos", model.ID)
+		location := path.Join(Prefix, "desembolsos", strconv.Itoa(model.GetID()))
 		c.Header("Location", location)
 		c.JSON(http.StatusOK, model)
 	default:
@@ -56,7 +61,9 @@ func (s *server) GetDesembolsoHandler(c *gin.Context) {
 
 func (s *server) ListDesembolsoHandler(c *gin.Context) {
 	pagination := getPagination(c)
-	models, total, err := s.service.ListDesembolso(pagination)
+
+	models := []*schema.Desembolso{nil}
+	total, err := s.service.List(&models, pagination)
 	switch err {
 	case nil:
 		c.Header("X-Total-Count", strconv.Itoa(total))

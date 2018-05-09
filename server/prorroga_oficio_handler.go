@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"path"
+
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -11,15 +12,14 @@ import (
 )
 
 func (s *server) CreateProrrogaOficioHandler(c *gin.Context) {
-	var prorrogaOficio schema.ProrrogaOficio
-	if err := c.BindJSON(&prorrogaOficio); err != nil {
+	var model schema.ProrrogaOficio
+	if err := c.BindJSON(&model); err != nil {
 		s.logger.Error(err)
 		abort(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := s.service.CreateProrrogaOficio(&prorrogaOficio)
-	if err != nil {
+	if err := s.service.Create(&model); err != nil {
 		switch err {
 		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
@@ -31,22 +31,28 @@ func (s *server) CreateProrrogaOficioHandler(c *gin.Context) {
 		return
 	}
 
-	location := path.Join(Prefix, "prorroga-oficios", id)
+	location := path.Join(Prefix, "prorroga-oficios", strconv.Itoa(model.GetID()))
 	c.Header("Location", location)
 	c.Writer.WriteHeader(http.StatusCreated)
 }
 
 func (s *server) GetProrrogaOficioHandler(c *gin.Context) {
-	prorrogaOficio, err := s.service.GetProrrogaOficio(c.Param("id"))
-	switch err {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		abort(c, http.StatusBadRequest, "ID should be an integer")
+		return
+	}
+
+	model := &schema.ProrrogaOficio{StorageModel: schema.StorageModel{ID: id}}
+	switch err := s.service.Get(model); err {
 	case storage.ErrNotFound:
 		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-	case storage.ErrInvalidUUID:
+	case storage.ErrInvalidID:
 		abort(c, http.StatusBadRequest, err.Error())
 	case nil:
-		location := path.Join(Prefix, "prorroga-oficios", prorrogaOficio.ID)
+		location := path.Join(Prefix, "prorroga-oficios", strconv.Itoa(model.GetID()))
 		c.Header("Location", location)
-		c.JSON(http.StatusOK, prorrogaOficio)
+		c.JSON(http.StatusOK, model)
 	default:
 		s.logger.Error(err)
 		abort(c, http.StatusInternalServerError, err.Error())
@@ -55,7 +61,9 @@ func (s *server) GetProrrogaOficioHandler(c *gin.Context) {
 
 func (s *server) ListProrrogaOficioHandler(c *gin.Context) {
 	pagination := getPagination(c)
-	models, total, err := s.service.ListProrrogaOficio(pagination)
+
+	models := []*schema.ProrrogaOficio{nil}
+	total, err := s.service.List(&models, pagination)
 	switch err {
 	case nil:
 		c.Header("X-Total-Count", strconv.Itoa(total))

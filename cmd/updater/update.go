@@ -26,12 +26,12 @@ func (job jobUpdate) Do() error {
 	start := time.Now()
 	defer job.wg.Done()
 
-	id, err := job.handler(job.row)
+	err := job.handler(job.row)
 	if err != nil {
 		return err
 	}
 
-	job.logger.Debugf("Updated %s:%d %s in %.2fms", job.filename, job.line, id, time.Since(start).Seconds()*1000)
+	job.logger.Debugf("Updated %s:%d in %.2fms", job.filename, job.line, time.Since(start).Seconds()*1000)
 
 	return nil
 }

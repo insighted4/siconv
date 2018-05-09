@@ -12,38 +12,47 @@ import (
 )
 
 func (s *server) CreateProgramaHandler(c *gin.Context) {
-	var programa schema.Programa
-	if err := c.BindJSON(&programa); err != nil {
+	var model schema.Programa
+	if err := c.BindJSON(&model); err != nil {
 		s.logger.Error(err)
 		abort(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := s.service.CreatePrograma(&programa)
-	switch err {
-	case storage.ErrAlreadyExists:
-		abort(c, http.StatusUnprocessableEntity, err.Error())
-	case nil:
-		location := path.Join(Prefix, "programas", id)
-		c.Header("Location", location)
-		c.Writer.WriteHeader(http.StatusCreated)
-	default:
+	if err := s.service.Create(&model); err != nil {
+		switch err {
+		case storage.ErrAlreadyExists:
+			abort(c, http.StatusUnprocessableEntity, err.Error())
+		default:
+			abort(c, http.StatusInternalServerError, err.Error())
+		}
+
 		s.logger.Error(err)
-		abort(c, http.StatusInternalServerError, err.Error())
+		return
 	}
+
+	location := path.Join(Prefix, "programas", strconv.Itoa(model.GetID()))
+	c.Header("Location", location)
+	c.Writer.WriteHeader(http.StatusCreated)
 }
 
 func (s *server) GetProgramaHandler(c *gin.Context) {
-	programa, err := s.service.GetPrograma(c.Param("id"))
-	switch err {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		abort(c, http.StatusBadRequest, "ID should be an integer")
+		return
+	}
+
+	model := &schema.Programa{StorageModel: schema.StorageModel{ID: id}}
+	switch err := s.service.Get(model); err {
 	case storage.ErrNotFound:
 		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-	case storage.ErrInvalidUUID:
+	case storage.ErrInvalidID:
 		abort(c, http.StatusBadRequest, err.Error())
 	case nil:
-		location := path.Join(Prefix, "programas", programa.ID)
+		location := path.Join(Prefix, "programas", strconv.Itoa(model.GetID()))
 		c.Header("Location", location)
-		c.JSON(http.StatusOK, programa)
+		c.JSON(http.StatusOK, model)
 	default:
 		s.logger.Error(err)
 		abort(c, http.StatusInternalServerError, err.Error())
@@ -52,9 +61,9 @@ func (s *server) GetProgramaHandler(c *gin.Context) {
 
 func (s *server) ListProgramaHandler(c *gin.Context) {
 	pagination := getPagination(c)
-	idPrograma := c.DefaultQuery("id_programa", "")
 
-	models, total, err := s.service.ListPrograma(idPrograma, pagination)
+	models := []*schema.Programa{nil}
+	total, err := s.service.List(&models, pagination)
 	switch err {
 	case nil:
 		c.Header("X-Total-Count", strconv.Itoa(total))

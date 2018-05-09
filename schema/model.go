@@ -3,44 +3,22 @@ package schema
 import "time"
 
 type Model interface {
-	GetID() string
-	SetID(id string)
-	GetLineRef() int
-	SetLineRef(lineRef int)
-	GetFileRef() string
-	SetFileRef(fileRef string)
+	GetID() int
+	SetID(id int)
 }
 
 type StorageModel struct {
-	ID        string     `json:"id"`
-	FileRef   string     `json:"file_ref"`
-	LineRef   int        `json:"line_ref"`
+	ID        int        `json:"id" binding:"required"`
 	CreatedAt *time.Time `json:"created_at"`
 	UpdatedAt *time.Time `json:"updated_at"`
 }
 
-func (m *StorageModel) GetID() string {
+func (m *StorageModel) GetID() int {
 	return m.ID
 }
 
-func (m *StorageModel) SetID(id string) {
+func (m *StorageModel) SetID(id int) {
 	m.ID = id
-}
-
-func (m *StorageModel) GetLineRef() int {
-	return m.LineRef
-}
-
-func (m *StorageModel) SetLineRef(lineRef int) {
-	m.LineRef = lineRef
-}
-
-func (m *StorageModel) GetFileRef() string {
-	return m.FileRef
-}
-
-func (m *StorageModel) SetFileRef(fileRef string) {
-	m.FileRef = fileRef
 }
 
 type Consorcio struct {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-pg/pg"
 	"github.com/insighted4/siconv/schema"
-	"github.com/insighted4/siconv/siconv"
 	"github.com/insighted4/siconv/storage"
 	"github.com/sirupsen/logrus"
 )
@@ -15,32 +14,46 @@ type postgres struct {
 	logger logrus.FieldLogger
 }
 
-func (dao *postgres) Check() error {
+func (p *postgres) Check() error {
+	// TODO
 	return nil
 }
 
-func (dao *postgres) insert(model schema.Model) (string, error) {
-	if _, err := dao.db.Model(model).Insert(); err != nil {
-		return "", err
+func (p *postgres) Insert(model schema.Model) error {
+	if model.GetID() == 0 {
+		return storage.ErrInvalidID
 	}
 
-	return model.GetID(), nil
+	if _, err := p.db.Model(model).Insert(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func (dao *postgres) get(model schema.Model, id string) (schema.Model, error) {
-	if !storage.IsValidUUID(id) {
-		return nil, storage.ErrInvalidUUID
-	}
-
-	err := dao.db.Model(model).Where("id = ?", id).Select()
+func (p *postgres) Lookup(model schema.Model) error {
+	err := p.db.Model(model).Where("id = ?", model.GetID()).Select()
 	if err == pg.ErrNoRows {
-		return model, storage.ErrNotFound
+		return storage.ErrNotFound
 	}
 
-	return model, err
+	return err
 }
 
-func (dao *postgres) query(models interface{}, sql string, countSql string, pagination *storage.Pagination, params ...interface{}) (interface{}, int, error) {
+func (p *postgres) List(models interface{}, pagination *storage.Pagination) (int, error) {
+	if pagination == nil {
+		pagination = storage.NewPagination(storage.Limit, 0)
+	}
+
+	count, err := p.db.Model(models).Limit(pagination.Limit).Order("id").Offset(pagination.Offset).SelectAndCount()
+	if err != nil && err != pg.ErrNoRows {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (p *postgres) query(models interface{}, sql string, countSql string, pagination *storage.Pagination, params ...interface{}) (interface{}, int, error) {
 	if pagination == nil {
 		pagination = storage.NewPagination(storage.Limit, 0)
 	}
@@ -49,32 +62,19 @@ func (dao *postgres) query(models interface{}, sql string, countSql string, pagi
 	params = append(params, pagination.Offset)
 
 	paginatedSql := sql + " LIMIT ? OFFSET ?"
-	if _, err := dao.db.Query(models, paginatedSql, params...); err != nil && err != pg.ErrNoRows {
+	if _, err := p.db.Query(models, paginatedSql, params...); err != nil && err != pg.ErrNoRows {
 		return models, 0, err
 	}
 
 	var count int
-	if _, err := dao.db.Query(&count, countSql, params...); err != nil && err != pg.ErrNoRows {
+	if _, err := p.db.Query(&count, countSql, params...); err != nil && err != pg.ErrNoRows {
 		return models, 0, err
 	}
 
 	return models, count, nil
 }
 
-func (dao *postgres) selectAndCount(model interface{}, pagination *storage.Pagination) (interface{}, int, error) {
-	if pagination == nil {
-		pagination = storage.NewPagination(storage.Limit, 0)
-	}
-
-	count, err := dao.db.Model(model).Limit(pagination.Limit).Order("line_ref").Offset(pagination.Offset).SelectAndCount()
-	if err != nil && err != pg.ErrNoRows {
-		return nil, 0, err
-	}
-
-	return model, count, nil
-}
-
-func New(options *pg.Options, logger logrus.FieldLogger) siconv.Service {
+func New(options *pg.Options, logger logrus.FieldLogger) storage.Service {
 	logger = logger.WithField("component", "postgres")
 
 	db := pg.Connect(options)

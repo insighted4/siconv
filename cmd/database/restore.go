@@ -167,8 +167,7 @@ func insert(fileReader io.Reader, filename string, storage *postgres, logger log
 			var models []schema.Model
 			for _, row := range rows {
 				model := converter(*row)
-				model.SetFileRef(filename)
-				model.SetLineRef(line)
+				model.SetID(line)
 				models = append(models, model)
 				line++
 

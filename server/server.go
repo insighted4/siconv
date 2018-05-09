@@ -18,7 +18,7 @@ const (
 
 type Config struct {
 	Token   string
-	Storage siconv.Service
+	Storage storage.Service
 	Logger  logrus.FieldLogger
 }
 
@@ -103,7 +103,9 @@ func New(cfg Config) (*server, error) {
 
 	v1.GET("/programas", srv.ListProgramaHandler)
 	v1.GET("/programas/:id", srv.GetProgramaHandler)
-	v1.GET("/programas/:id/propostas", srv.ListProgramaPropostaHandler)
+
+	v1.GET("/programa-propostas", srv.ListProgramaPropostaHandler)
+	v1.GET("/programa-propostas/:id", srv.GetProgramaPropostaHandler)
 
 	v1.GET("/proponentes", srv.ListProponenteHandler)
 	v1.GET("/proponentes/:id", srv.GetProponenteHandler)
@@ -122,7 +124,7 @@ func New(cfg Config) (*server, error) {
 	v1.POST("/convenios", srv.CreateConvenioHandler)
 	v1.POST("/desembolsos", srv.CreateDesembolsoHandler)
 	v1.POST("/emendas", srv.CreateEmendaHandler)
-	v1.POST("/empenhos", srv.CreateEmpenhoHanler)
+	v1.POST("/empenhos", srv.CreateEmpenhoHandler)
 	v1.POST("/empenho-desembolsos", srv.CreateEmpenhoDesembolsoHandler)
 	v1.POST("/etapa-crono-fisicos", srv.CreateEtapaCronoFisicoHandler)
 	v1.POST("/historico-situacoes", srv.CreateHistoricoSituacaoHandler)

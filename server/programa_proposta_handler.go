@@ -12,15 +12,14 @@ import (
 )
 
 func (s *server) CreateProgramaPropostaHandler(c *gin.Context) {
-	var programaProposta schema.ProgramaProposta
-	if err := c.BindJSON(&programaProposta); err != nil {
+	var model schema.ProgramaProposta
+	if err := c.BindJSON(&model); err != nil {
 		s.logger.Error(err)
 		abort(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := s.service.CreateProgramaProposta(&programaProposta)
-	if err != nil {
+	if err := s.service.Create(&model); err != nil {
 		switch err {
 		case storage.ErrAlreadyExists:
 			abort(c, http.StatusUnprocessableEntity, err.Error())
@@ -32,30 +31,39 @@ func (s *server) CreateProgramaPropostaHandler(c *gin.Context) {
 		return
 	}
 
-	location := path.Join(Prefix, "programa-propostas", id)
+	location := path.Join(Prefix, "programa-propostas", strconv.Itoa(model.GetID()))
 	c.Header("Location", location)
 	c.Writer.WriteHeader(http.StatusCreated)
+}
+
+func (s *server) GetProgramaPropostaHandler(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		abort(c, http.StatusBadRequest, "ID should be an integer")
+		return
+	}
+
+	model := &schema.ProgramaProposta{StorageModel: schema.StorageModel{ID: id}}
+	switch err := s.service.Get(model); err {
+	case storage.ErrNotFound:
+		abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
+	case storage.ErrInvalidID:
+		abort(c, http.StatusBadRequest, err.Error())
+	case nil:
+		location := path.Join(Prefix, "programa-propostas", strconv.Itoa(model.GetID()))
+		c.Header("Location", location)
+		c.JSON(http.StatusOK, model)
+	default:
+		s.logger.Error(err)
+		abort(c, http.StatusInternalServerError, err.Error())
+	}
 }
 
 func (s *server) ListProgramaPropostaHandler(c *gin.Context) {
 	pagination := getPagination(c)
 
-	programa, err := s.service.GetPrograma(c.Param("id"))
-	if err != nil {
-		switch err {
-		case storage.ErrNotFound:
-			abort(c, http.StatusNotFound, http.StatusText(http.StatusNotFound))
-		case storage.ErrInvalidUUID:
-			abort(c, http.StatusBadRequest, err.Error())
-		default:
-			s.logger.Error(err)
-			abort(c, http.StatusInternalServerError, err.Error())
-		}
-
-		return
-	}
-
-	models, total, err := s.service.ListProgramaProposta(programa.ID_PROGRAMA, pagination)
+	models := []*schema.ProgramaProposta{nil}
+	total, err := s.service.List(&models, pagination)
 	switch err {
 	case nil:
 		c.Header("X-Total-Count", strconv.Itoa(total))

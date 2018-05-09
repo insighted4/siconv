@@ -3,6 +3,8 @@ package storage
 import (
 	"errors"
 	"regexp"
+
+	"github.com/insighted4/siconv/schema"
 )
 
 var (
@@ -15,9 +17,16 @@ var (
 	// ErrAlreadyExists is the error returned by storage if a resource ID is taken during a create.
 	ErrAlreadyExists = errors.New("ID already exists")
 
-	// ErrInvalidUUID is the error returned by storage if ID is not valid UUID.
-	ErrInvalidUUID = errors.New("invalid UUID")
+	// ErrInvalidID is the error returned by storage if ID is not valid UUID.
+	ErrInvalidID = errors.New("invalid ID")
 )
+
+type Service interface {
+	Insert(model schema.Model) error
+	Lookup(model schema.Model) error
+	List(models interface{}, pagination *Pagination) (int, error)
+	Check() error
+}
 
 type Pagination struct {
 	Limit  int

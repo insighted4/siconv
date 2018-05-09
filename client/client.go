@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"path"
 	"time"
 
 	"github.com/insighted4/siconv/siconv"
@@ -81,8 +80,7 @@ func (s *Client) post(body interface{}, url string) (string, error) {
 		return "", fmt.Errorf("unable to read id")
 	}
 
-	id := path.Base(location[0])
-	return id, nil
+	return location[0], nil
 }
 
 func (s *Client) put(body interface{}, url string) error {
