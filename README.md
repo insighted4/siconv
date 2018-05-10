@@ -4,6 +4,14 @@
 
 The goal of this project is to provide a REST API around the [CSV files](http://portal.convenios.gov.br/images/docs/CGSIS/csv/siconv.zip) provided by SICONV.
 
+## Run with Docker Compose
+    
+    # Run containers in background
+    $ docker-compose up -d
+    
+    # Create database schema
+    $ docker run -it --rm --link siconv_postgres:postgres -v $PWD/migrations:/tmp/migrations --network siconv_default postgres bash -c "export PGPASSWORD=secret && psql -h postgres -U postgres siconv < /tmp/migrations/1525840555_initial.up.sql" 
+
 ## Run with Docker
 
     $ SICONV_TOKEN=$(openssl rand -base64 32)
@@ -20,7 +28,7 @@ The goal of this project is to provide a REST API around the [CSV files](http://
 
 ## Restore Database Schema
 
-    psql -U username siconv_db < 1525840555_create_tables.up.sql
+    psql -U username siconv_db < 1525840555_initial.up.sql
 
 ## Endpoints
 
