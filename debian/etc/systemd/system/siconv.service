@@ -1,0 +1,19 @@
+[Unit]
+Description=SICONV API
+After=docker.service
+
+[Service]
+Restart=always
+EnvironmentFile=/etc/siconv/siconv.cfg
+# ExecStartPre=/usr/bin/docker kill siconv-service
+# ExecStartPre=/usr/bin/docker rm siconv-service
+ExecStartPre=/usr/bin/docker pull insighted4/siconv
+# ExecStartPre=/usr/bin/docker rm siconv-service
+ExecStart=/usr/bin/docker run --rm --name siconv-service -e "SICONV_TOKEN=${SICONV_TOKEN}" -e "SICONV_DATABASE_URL=${SICONV_DATABASE_URL}" -e "SICONV_LOG_LEVEL=${SICONV_LOG_LEVEL}" -p 8080:8080 insighted4/siconv
+ExecStop=/usr/bin/docker stop siconv-service
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=siconv
+
+[Install]
+WantedBy=local.target
