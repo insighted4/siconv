@@ -15,7 +15,7 @@ RUN set -x \
     && go get github.com/golang/lint \
     && go get github.com/t-yuki/gocover-cobertura \
     && go get github.com/tebeka/go2xunit \
-    && go get github.com/golang-migrate/migrate/cli
+    && go get github.com/golang-migrate/migrate/cli \
     && go get github.com/lib/pq
 
 COPY . /go/src/github.com/insighted4/siconv
@@ -43,12 +43,10 @@ RUN set -x \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/share/siconv /usr/share/siconv
-RUN ln -s /usr/share/siconv/bin/database /usr/local/bin/database
-RUN ln -s /usr/share/siconv/bin/server /usr/local/bin/server
-RUN ln -s /usr/share/siconv/bin/updater /usr/local/bin/updater
+RUN ln -s /usr/share/siconv/bin/server /usr/local/bin/siconv
 
 COPY --from=builder /usr/local/bin/migrate /usr/local/bin/migrate
 
 WORKDIR /usr/share/siconv
 EXPOSE 8080
-CMD ["server", "start"]
+CMD ["siconv", "serve"]

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"archive/zip"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -15,24 +16,26 @@ import (
 	"github.com/go-pg/pg"
 	"github.com/insighted4/siconv/schema"
 	"github.com/insighted4/siconv/server"
+	"github.com/insighted4/siconv/storage"
+	"github.com/insighted4/siconv/storage/postgres"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-func commandDatabase() *cobra.Command {
+func commandRestore() *cobra.Command {
 	var (
 		file        string
 		databaseURL string
+		truncate    bool
 		logLevel    string
 		logFormat   string
 	)
 	cmd := cobra.Command{
 		Use:     "restore",
 		Short:   "Restore database from an archive file",
-		Example: "database restore",
+		Example: "siconv restore",
 		Run: func(cmd *cobra.Command, args []string) {
-			u, err := url.Parse(viper.GetString("database_url"))
+			parsedURL, err := url.Parse(databaseURL)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(2)
@@ -50,22 +53,22 @@ func commandDatabase() *cobra.Command {
 				os.Exit(2)
 			}
 
-			pwd, _ := u.User.Password()
+			pwd, _ := parsedURL.User.Password()
 			pgOptions := &pg.Options{
-				Addr:     u.Host,
-				Database: strings.Replace(u.RequestURI(), "/", "", 1),
-				User:     u.User.Username(),
+				Addr:     parsedURL.Host,
+				Database: strings.Replace(parsedURL.RequestURI(), "/", "", 1),
+				User:     parsedURL.User.Username(),
 				Password: pwd,
 			}
 
-			logger, err := server.NewLogger(viper.GetString("log_level"), viper.GetString("log_format"))
+			logger, err := server.NewLogger(logLevel, logFormat)
 			if err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(2)
 			}
 
 			start := time.Now()
-			if err := restore(filename, pgOptions, logger); err != nil {
+			if err := restore(filename, truncate, pgOptions, logger); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
@@ -73,35 +76,27 @@ func commandDatabase() *cobra.Command {
 		},
 	}
 
-	viper.SetEnvPrefix("siconv")
-	viper.AutomaticEnv()
-
 	cmd.Flags().StringVar(&file, "file", "siconv.zip", "ZIP or CSV file")
-
 	cmd.Flags().StringVar(&databaseURL, "database-url", "postgres://localhost:5432/siconv", "Database connection string")
-	viper.BindPFlag("database_url", cmd.Flags().Lookup("database-url"))
-
+	cmd.Flags().BoolVar(&truncate, "truncate", false, "Truncate table")
 	cmd.Flags().StringVar(&logLevel, "log-level", "info", "Logger level")
-	viper.BindPFlag("log_level", cmd.Flags().Lookup("log-level"))
-
 	cmd.Flags().StringVar(&logFormat, "log-format", "text", "Logger format")
-	viper.BindPFlag("log_format", cmd.Flags().Lookup("log-format"))
 
 	return &cmd
 }
 
-func restore(filename string, pgOptions *pg.Options, logger logrus.FieldLogger) error {
-	logger.Infof("Updating database %s", filename)
+func restore(filename string, truncate bool, pgOptions *pg.Options, logger logrus.FieldLogger) error {
+	logger.Infof("Restoring database from %s", filename)
 
-	storage := NewPostgres(pgOptions, logger)
+	storage := postgres.New(pgOptions, logger)
 
 	switch filepath.Ext(filename) {
 	case ".csv":
-		if err := restoreCSV(filename, storage, logger); err != nil {
+		if err := restoreCSV(filename, truncate, storage, logger); err != nil {
 			return err
 		}
 	case ".zip":
-		if err := restoreZIP(filename, storage, logger); err != nil {
+		if err := restoreZIP(filename, truncate, storage, logger); err != nil {
 			return err
 		}
 	default:
@@ -109,28 +104,69 @@ func restore(filename string, pgOptions *pg.Options, logger logrus.FieldLogger) 
 	}
 
 	return nil
-	return nil
 }
 
-func restoreCSV(filename string, storage *postgres, logger logrus.FieldLogger) error {
+func restoreCSV(filename string, truncate bool, storage storage.Service, logger logrus.FieldLogger) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	return insert(file, filepath.Base(filename), storage, logger)
+	return insert(file, filepath.Base(filename), truncate, storage, logger)
 }
 
-func restoreZIP(filename string, storage *postgres, logger logrus.FieldLogger) error {
+func restoreZIP(filename string, truncate bool, storage storage.Service, logger logrus.FieldLogger) error {
+	reader, err := zip.OpenReader(filename)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+
+	for _, file := range reader.File {
+		if file.FileInfo().IsDir() {
+			continue
+		}
+
+		if err := insertZIP(file, truncate, storage, logger); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func insert(fileReader io.Reader, filename string, storage *postgres, logger logrus.FieldLogger) error {
+func insertZIP(file *zip.File, truncate bool, storage storage.Service, logger logrus.FieldLogger) error {
+	fileReader, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer fileReader.Close()
+
+	filename := file.FileInfo().Name()
+	logger.Infof("Processing %s", filename)
+	if err := insert(fileReader, filename, truncate, storage, logger); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func insert(fileReader io.Reader, filename string, truncate bool, storage storage.Service, logger logrus.FieldLogger) error {
 	start := time.Now()
 	converter := NewConverter(filename)
 	if converter == nil {
 		logger.Warnf("unrecognized filename: %s", filename)
 		return nil
+	}
+
+	if truncate {
+		tablename := switchFileToTable(filename)
+		if tablename == "" {
+			logger.Warnf("unrecognized table name: %s", filename)
+		}
+		if err := storage.Truncate(tablename); err != nil {
+			return err
+		}
 	}
 
 	csvReader := csv.NewReader(fileReader)
@@ -143,16 +179,11 @@ func insert(fileReader io.Reader, filename string, storage *postgres, logger log
 		return err
 	}
 
-	// TODO: Improve truncate
-	if err := truncate(filename, storage, logger); err != nil {
-		return err
-	}
-
 	line := 2
 	limit := 1000
 	wg := NewWaitGroup(runtime.NumCPU())
 	for {
-		rows, err := read(csvReader, headers, limit)
+		rows, err := readRows(csvReader, headers, limit)
 		if err != nil {
 			return err
 		}
@@ -166,19 +197,23 @@ func insert(fileReader io.Reader, filename string, storage *postgres, logger log
 			defer wg.Done()
 			var models []schema.Model
 			for _, row := range rows {
-				model := converter(*row)
-				model.SetID(line)
-				models = append(models, model)
-				line++
+				model := converter(row)
+				if model != nil {
+					model.SetID(line)
+					models = append(models, model)
+				}
 
 				if (line % limit) == 0 {
-					logger.Warnf("Processed %s: %d lines", filename, line)
+					logger.Debugf("Processed %s: %d lines", filename, line)
 				}
+
+				line++
 			}
 
-			if err := storage.db.Insert(&models); err != nil {
-				logger.Error(err)
+			if err := storage.BulkInsert(&models); err != nil {
+				logger.Errorf("unable to process %s:%d: %v", filename, line, err)
 			}
+
 		}()
 
 		wg.Wait()
@@ -188,8 +223,8 @@ func insert(fileReader io.Reader, filename string, storage *postgres, logger log
 	return nil
 }
 
-func read(reader *csv.Reader, headers []string, limit int) ([]*map[string]string, error) {
-	models := []*map[string]string{}
+func readRows(reader *csv.Reader, headers []string, limit int) ([]map[string]string, error) {
+	models := []map[string]string{}
 	total := 0
 	for {
 		record, err := reader.Read()
@@ -210,7 +245,7 @@ func read(reader *csv.Reader, headers []string, limit int) ([]*map[string]string
 			row[h] = v
 		}
 
-		models = append(models, &row)
+		models = append(models, row)
 		total++
 
 		if total >= limit {

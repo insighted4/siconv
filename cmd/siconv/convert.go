@@ -1,10 +1,9 @@
 package main
 
 import (
+	"strconv"
 	"strings"
 	"time"
-
-	"strconv"
 
 	"github.com/insighted4/siconv/schema"
 )
@@ -354,4 +353,138 @@ func NewTermoAditivo(row map[string]string) *schema.TermoAditivo {
 		DT_FIM_TA:           Date(row["dt_fim_ta"]),
 		JUSTIFICATIVA_TA:    row["justificativa_ta"],
 	}
+}
+
+type ConverterFunc func(row map[string]string) schema.Model
+
+func NewConverter(filename string) ConverterFunc {
+	switch filename {
+	case "siconv_consorcios.csv":
+		return func(row map[string]string) schema.Model {
+			return NewConsorcio(row)
+		}
+	case "siconv_convenio.csv":
+		return func(row map[string]string) schema.Model {
+			return NewConvenio(row)
+		}
+	case "siconv_desembolso.csv":
+		return func(row map[string]string) schema.Model {
+			return NewDesembolso(row)
+		}
+	case "siconv_emenda.csv":
+		return func(row map[string]string) schema.Model {
+			return NewEmenda(row)
+		}
+	case "siconv_empenho.csv":
+		return func(row map[string]string) schema.Model {
+			return NewEmpenho(row)
+		}
+	case "siconv_empenho_desembolso.csv":
+		return func(row map[string]string) schema.Model {
+			return NewEmpenhoDesembolso(row)
+		}
+	case "siconv_etapa_crono_fisico.csv":
+		return func(row map[string]string) schema.Model {
+			return NewEtapaCronoFisico(row)
+		}
+	case "siconv_historico_situacao.csv":
+		return func(row map[string]string) schema.Model {
+			model := NewHistoricoSituacao(row)
+			if model.DIA_HISTORICO_SIT == nil || model.DIAS_HISTORICO_SIT == 0 {
+				return nil
+			}
+			return model
+		}
+	case "siconv_ingresso_contrapartida.csv":
+		return func(row map[string]string) schema.Model {
+			return NewIngressoContrapartida(row)
+		}
+	case "siconv_meta_crono_fisico.csv":
+		return func(row map[string]string) schema.Model {
+			return NewMetaCronoFisico(row)
+		}
+	case "siconv_obtv_convenente.csv":
+		return func(row map[string]string) schema.Model {
+			return NewOBTVConvenente(row)
+		}
+	case "siconv_pagamento.csv":
+		return func(row map[string]string) schema.Model {
+			return NewPagamento(row)
+		}
+	case "siconv_plano_aplicacao_detalhado.csv":
+		return func(row map[string]string) schema.Model {
+			return NewPlanoAplicacaoDetalhado(row)
+		}
+	case "siconv_programa.csv":
+		return func(row map[string]string) schema.Model {
+			return NewPrograma(row)
+		}
+	case "siconv_programa_proposta.csv":
+		return func(row map[string]string) schema.Model {
+			return NewProgramaProposta(row)
+		}
+	case "siconv_proponentes.csv":
+		return func(row map[string]string) schema.Model {
+			return NewProponente(row)
+		}
+	case "siconv_proposta.csv":
+		return func(row map[string]string) schema.Model {
+			return NewProposta(row)
+		}
+	case "siconv_prorroga_oficio.csv":
+		return func(row map[string]string) schema.Model {
+			return NewProrrogaOficio(row)
+		}
+	case "siconv_termo_aditivo.csv":
+		return func(row map[string]string) schema.Model {
+			return NewTermoAditivo(row)
+		}
+	}
+
+	return nil
+}
+
+func switchFileToTable(filename string) string {
+	switch filename {
+	case "siconv_consorcios.csv":
+		return "consorcios"
+	case "siconv_convenio.csv":
+		return "convenios"
+	case "siconv_desembolso.csv":
+		return "desembolsos"
+	case "siconv_emenda.csv":
+		return "emendas"
+	case "siconv_empenho.csv":
+		return "empenhos"
+	case "siconv_empenho_desembolso.csv":
+		return "empenho_desembolsos"
+	case "siconv_etapa_crono_fisico.csv":
+		return "etapa_crono_fisicos"
+	case "siconv_historico_situacao.csv":
+		return "historico_situacoes"
+	case "siconv_ingresso_contrapartida.csv":
+		return "ingresso_contrapartidas"
+	case "siconv_meta_crono_fisico.csv":
+		return "meta_crono_fisicos"
+	case "siconv_obtv_convenente.csv":
+		return "obtv_convenentes"
+	case "siconv_pagamento.csv":
+		return "pagamentos"
+	case "siconv_plano_aplicacao_detalhado.csv":
+		return "plano_aplicacao_detalhados"
+	case "siconv_programa.csv":
+		return "programas"
+	case "siconv_programa_proposta.csv":
+		return "programa_propostas"
+	case "siconv_proponentes.csv":
+		return "proponentes"
+	case "siconv_proposta.csv":
+		return "propostas"
+	case "siconv_prorroga_oficio.csv":
+		return "prorroga_oficios"
+	case "siconv_termo_aditivo.csv":
+		return "termo_aditivos"
+	}
+
+	return ""
 }

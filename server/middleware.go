@@ -3,11 +3,27 @@ package server
 import (
 	"fmt"
 
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/insighted4/siconv/version"
 	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
 )
+
+func AuthorizationMiddleware(authorizationToken string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		pieces := strings.Fields(c.GetHeader("Authorization"))
+		if len(pieces) != 2 || authorizationToken != pieces[1] {
+			abort(c, http.StatusUnauthorized, "invalid authorization token")
+			return
+		}
+
+		c.Set("token", authorizationToken)
+		c.Next()
+	}
+}
 
 // LogMiddleware provide gin router handler.
 func LogMiddleware(logger logrus.FieldLogger) gin.HandlerFunc {

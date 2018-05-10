@@ -17,6 +17,3 @@ DROP TABLE proponentes;
 DROP TABLE propostas;
 DROP TABLE prorroga_oficios;
 DROP TABLE termo_aditivos;
-DROP TABLE history;
-
-DROP EXTENSION IF EXISTS "uuid-ossp";

@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func commandStart() *cobra.Command {
+func commandServe() *cobra.Command {
 	var (
 		databaseURL string
 		token       string
@@ -25,9 +25,9 @@ func commandStart() *cobra.Command {
 		logFormat   string
 	)
 	cmd := cobra.Command{
-		Use:     "start",
+		Use:     "serve",
 		Short:   "Start HTTP Server",
-		Example: "server start",
+		Example: "siconv serve",
 		Run: func(cmd *cobra.Command, args []string) {
 			u, err := url.Parse(viper.GetString("database_url"))
 			if err != nil {
@@ -49,7 +49,7 @@ func commandStart() *cobra.Command {
 				os.Exit(2)
 			}
 
-			if err := start(viper.GetString("token"), pgOptions, logger); err != nil {
+			if err := serve(viper.GetString("token"), pgOptions, logger); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
@@ -74,7 +74,7 @@ func commandStart() *cobra.Command {
 	return &cmd
 }
 
-func start(token string, pgOptions *pg.Options, logger logrus.FieldLogger) error {
+func serve(token string, pgOptions *pg.Options, logger logrus.FieldLogger) error {
 	logger.Infoln("Starting SICONV API")
 	logger.Infof("Database: postgres://%s/%s", pgOptions.Addr, pgOptions.Database)
 	pg := postgres.New(pgOptions, logger)

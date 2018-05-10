@@ -31,6 +31,10 @@ func (p *postgres) Insert(model schema.Model) error {
 	return nil
 }
 
+func (p *postgres) BulkInsert(models interface{}) error {
+	return p.db.Insert(models)
+}
+
 func (p *postgres) Lookup(model schema.Model) error {
 	err := p.db.Model(model).Where("id = ?", model.GetID()).Select()
 	if err == pg.ErrNoRows {
@@ -51,6 +55,11 @@ func (p *postgres) List(models interface{}, pagination *storage.Pagination) (int
 	}
 
 	return count, nil
+}
+
+func (p *postgres) Truncate(table string) error {
+	_, err := p.db.Exec("TRUNCATE TABLE " + table)
+	return err
 }
 
 func (p *postgres) query(models interface{}, sql string, countSql string, pagination *storage.Pagination, params ...interface{}) (interface{}, int, error) {

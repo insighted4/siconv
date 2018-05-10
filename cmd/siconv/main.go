@@ -7,11 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const RootDescription = "SICONV Database Updater"
+const RootDescription = "SICONV API Server"
 
 func commandRoot() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:  "updater",
+		Use:  "siconv",
 		Long: RootDescription,
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
@@ -19,7 +19,9 @@ func commandRoot() *cobra.Command {
 		},
 	}
 
-	rootCmd.AddCommand(commandSync())
+	rootCmd.AddCommand(commandRestore())
+	rootCmd.AddCommand(commandServe())
+	rootCmd.AddCommand(commandTrucate())
 	rootCmd.AddCommand(commandVersion())
 
 	return rootCmd

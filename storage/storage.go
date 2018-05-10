@@ -23,8 +23,10 @@ var (
 
 type Service interface {
 	Insert(model schema.Model) error
+	BulkInsert(interface{}) error
 	Lookup(model schema.Model) error
 	List(models interface{}, pagination *Pagination) (int, error)
+	Truncate(table string) error
 	Check() error
 }
 

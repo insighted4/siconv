@@ -25,26 +25,16 @@ export GIN_MODE=release
 
 LD_FLAGS="-w -X $(REPO_PATH)/version.Version=$(VERSION)"
 
-build: clean bin/database bin/server bin/updater
+build: clean bin/siconv
 
-bin/database: check-go-version
-	@echo "Building Database Tool"
-	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/server
-
-bin/server: check-go-version
-	@echo "Building Server"
-	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/server
-
-bin/updater: check-go-version
-	@echo "Building Updater"
-	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/updater
+bin/siconv: check-go-version
+	@echo "Building SICONV"
+	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/siconv
 
 .PHONY: release-binary
 release-binary:
 	@echo "Releasing binary files"
-	@go build -race -o release/bin/database -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/database
-	@go build -race -o release/bin/server -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/server
-	@go build -race -o release/bin/updater -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/updater
+	@go build -race -o release/bin/server -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/siconv
 
 .PHONY: start
 start: build
