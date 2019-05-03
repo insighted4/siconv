@@ -1,6 +1,7 @@
 package client
 
 import (
+	"io"
 	"path"
 
 	"strconv"
@@ -52,6 +53,25 @@ func (s *Client) List(models interface{}, pagination *storage.Pagination) (int, 
 	url := path.Join(s.prefix, endpoint)
 	total, err := s.get(&models, url, nil)
 	return total, err
+}
+
+func (s *Client) Upload(filename string, reader io.Reader) error {
+	url := path.Join(s.prefix, "/upload")
+
+	var apiError map[string]interface{}
+	_, err := s.client.R().
+		SetFileReader("file", filename, reader).
+		SetError(&apiError).
+		Post(url)
+	if err != nil {
+		return err
+	}
+
+	if apiError != nil {
+		return fmt.Errorf("unable to upload %s: %v", filename, apiError["message"])
+	}
+
+	return nil
 }
 
 func newEndpoint(model interface{}) string {

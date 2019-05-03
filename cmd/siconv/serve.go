@@ -2,18 +2,15 @@ package main
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/spf13/viper"
-
 	"net/url"
-
+	"os"
 	"strings"
 
 	"github.com/go-pg/pg"
 	"github.com/insighted4/siconv/server"
 	"github.com/insighted4/siconv/storage/postgres"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 func commandServe() *cobra.Command {
@@ -25,8 +22,8 @@ func commandServe() *cobra.Command {
 	)
 	cmd := cobra.Command{
 		Use:     "serve",
-		Short:   "Start HTTP Server",
-		Example: "siconv serve",
+		Short:   "Start HTTP server",
+		Example: fmt.Sprintf("%s serve --database postgres://user:secret@localhost:5432/siconv --token B8v83HQh", ShortDescription),
 		Run: func(cmd *cobra.Command, args []string) {
 			u, err := url.Parse(viper.GetString("database_url"))
 			if err != nil {
@@ -48,9 +45,6 @@ func commandServe() *cobra.Command {
 			}
 		},
 	}
-
-	viper.SetEnvPrefix("siconv")
-	viper.AutomaticEnv()
 
 	cmd.Flags().StringVar(&databaseURL, "database-url", "postgres://localhost:5432/siconv", "Database connection string")
 	viper.BindPFlag("database_url", cmd.Flags().Lookup("database-url"))

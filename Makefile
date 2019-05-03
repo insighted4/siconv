@@ -3,9 +3,7 @@ ORG_PATH=github.com/insighted4
 REPO_PATH=$(ORG_PATH)/$(PROJ)
 export PATH := $(PWD)/bin:$(PATH)
 
-VERSION ?= $(shell ./scripts/git-version)
-ENVIRONMENT ?= development
-export ENVIRONMENT
+DOCKER_IMAGE=$(PROJ)
 
 $( shell mkdir -p bin )
 $( shell mkdir -p release/bin )
@@ -17,78 +15,91 @@ group=$(shell id -g -n)
 
 export GOBIN=$(PWD)/bin
 # Prefer ./bin instead of system packages for things like protoc, where we want
-# to use the version orchestra uses, not whatever a developer has installed.
+# to use the version the application uses, not whatever a developer has installed.
 export PATH=$(GOBIN):$(shell printenv PATH)
-export GO15VENDOREXPERIMENT=1
 
-export GIN_MODE=release
+# Version
+VERSION ?= $(shell git rev-parse --abbrev-ref HEAD)
+COMMIT_HASH ?= $(shell git rev-parse HEAD 2>/dev/null)
+BUILD_TIME ?= $(shell date +%FT%T%z)
 
-LD_FLAGS="-w -X $(REPO_PATH)/version.Version=$(VERSION)"
+LD_FLAGS="-w -X $(REPO_PATH)/version.BuildTime=$(BUILD_TIME) -X $(REPO_PATH)/version.CommitHash=$(COMMIT_HASH) -X $(REPO_PATH)/version.Version=$(VERSION)"
+LDFLAGS += -X main.Version=${VERSION} -X main.CommitHash=${COMMIT_HASH} -X main.BuildDate=${BUILD_DATE}
+
+# Inject .env file
+-include .env
+export $(shell sed 's/=.*//' .env)
 
 build: clean bin/siconv
 
-bin/siconv: check-go-version
-	@echo "Building SICONV"
+bin/siconv:
+	@echo "Building Siconv Service"
 	@go install -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/siconv
 
-.PHONY: release-binary
-release-binary:
-	@echo "Releasing binary files"
-	@go build -race -o release/bin/server -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/siconv
-
-.PHONY: start
-start: build
-	@echo "Staring Server"
-	@$(GOBIN)/server start
-
-.PHONY: revendor
-revendor:
-	@dep ensure
-
-test:
-	@echo "Testing"
-	@go test -v -i $(shell go list ./... | grep -v '/vendor/')
-	@go test -v $(shell go list ./... | grep -v '/vendor/')
-
-testcoverage:
-	@echo "Testing with coverage"
-	@mkdir -p results
-	@go test -v ./... | go2xunit -output results/tests.xml
-	@gocov test ./... | gocov-xml > results/cobertura-coverage.xml
-
-testrace:
-	@echo "Testing with race detection"
-	@go test -v -i --race $(shell go list ./... | grep -v '/vendor/')
-	@go test -v --race $(shell go list ./... | grep -v '/vendor/')
-
-vet:
-	@echo "Running go tool vet on packages"
-	@go vet $(shell go list ./... | grep -v '/vendor/')
-
-fmt:
-	@echo "Running gofmt on package sources"
-	@go fmt $(shell go list ./... | grep -v '/vendor/')
-
-lint:
-	@echo "lint"
-	@for package in $(shell go list ./... | grep -v '/vendor/' | grep -v '/api' | grep -v '/server/internal'); do \
-      golint -set_exit_status $$package $$i || exit 1; \
-	done
-
-.PHONY: check-go-version
-check-go-version:
-	@echo "Checking Golang version"
-	@./scripts/check-go-version
-
-.PHONY: clean
 clean:
-	@echo "Cleaning Binary Folders"
+	@echo "Cleaning binary folders"
 	@rm -rf bin/*
 	@rm -rf release/*
 	@rm -rf results/*
 
-testall: testcoverage testrace vet fmt # lint
+release-binary:
+	@echo "Releasing binary files"
+	@go build -race -o release/bin/siconv -v -ldflags $(LD_FLAGS) $(REPO_PATH)/cmd/siconv
 
-FORCE:
+revendor:
+	@echo "Install dependencies"
+	@go get -v ./...
+	@go mod vendor
 
-.PHONY: fmt lint test testall testcoverage testrace vet
+siconv-serve: build
+	@echo "Running Siconv Service"
+	@bin/siconv serve
+
+.PHONY: docker-image
+docker-image: clean
+	@echo "Building $(DOCKER_IMAGE) image"
+	@docker build -t $(DOCKER_IMAGE) --rm -f Dockerfile .
+
+test:
+	@echo "Testing"
+	@go test -v --short -race ./...
+
+testcoverage:
+	@echo "Testing with coverage"
+	@mkdir -p results
+	@go test -v $(REPO_PATH)/... | go2xunit -output results/tests.xml
+	@gocov test $(REPO_PATH)/... | gocov-xml > results/cobertura-coverage.xml
+
+testrace:
+	@echo "Testing with race detection"
+	@go test -v --race $(REPO_PATH)/...
+
+vet:
+	@echo "Running go tool vet on packages"
+	go vet $(REPO_PATH)/...
+
+fmt:
+	@echo "Running gofmt on package sources"
+	go fmt $(REPO_PATH)/...
+
+lint:
+	@echo "Lint"
+	go get -v github.com/golang/lint/golint
+	for file in $$(find . -name '*.go' | grep -v '\.pb\.go\|\.pb\.gw\.go'); do \
+		golint $${file}; \
+		if [ -n "$$(golint $${file})" ]; then \
+			exit 1; \
+		fi; \
+	done
+
+testall: testrace vet fmt testcoverage #lint
+
+.PHONY: fmt \
+		lint \
+		release-binary \
+		revendor \
+		test \
+		testall \
+		testcoverage \
+		testrace \
+		vet

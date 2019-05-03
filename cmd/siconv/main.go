@@ -4,25 +4,32 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/spf13/viper"
+
+	"github.com/insighted4/siconv/version"
 	"github.com/spf13/cobra"
 )
 
-const RootDescription = "SICONV API Server"
+const ShortDescription = "siconv"
+const LongDescription = "SICONV Service"
 
 func commandRoot() *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:  "siconv",
-		Long: RootDescription,
+		Use:   ShortDescription,
+		Short: ShortDescription,
+		Long:  LongDescription,
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
 			os.Exit(2)
 		},
 	}
 
-	rootCmd.AddCommand(commandRestore())
+	viper.SetEnvPrefix(ShortDescription)
+	viper.AutomaticEnv()
+
+	rootCmd.AddCommand(commandImport())
 	rootCmd.AddCommand(commandServe())
-	rootCmd.AddCommand(commandTrucate())
-	rootCmd.AddCommand(commandVersion())
+	rootCmd.AddCommand(version.NewCommand(LongDescription))
 
 	return rootCmd
 }

@@ -4,12 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"time"
 
 	"github.com/insighted4/siconv/siconv"
 	"github.com/insighted4/siconv/version"
-	"gopkg.in/resty.v0"
+	"gopkg.in/resty.v1"
 )
 
 const Prefix = "/api/v1/"
@@ -20,10 +19,9 @@ var (
 )
 
 type Client struct {
-	client  *resty.Client
-	baseURL *url.URL
-	prefix  string
-	token   string
+	client *resty.Client
+	prefix string
+	token  string
 }
 
 var _ siconv.Service = (*Client)(nil)
@@ -32,10 +30,7 @@ func (s *Client) get(result interface{}, url string, params map[string]string) (
 	var apiError map[string]interface{}
 	res, err := s.client.R().
 		SetResult(result).
-		SetHeader("Accept", "application/json").
 		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", UserAgent).
-		SetHeader("Authorization", fmt.Sprintf("Bearer %s", s.token)).
 		SetQueryParams(params).
 		SetError(&apiError).
 		Get(url)
@@ -60,10 +55,7 @@ func (s *Client) get(result interface{}, url string, params map[string]string) (
 func (s *Client) post(body interface{}, url string) (string, error) {
 	var apiError map[string]interface{}
 	res, err := s.client.R().
-		SetHeader("Accept", "application/json").
 		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", UserAgent).
-		SetHeader("Authorization", fmt.Sprintf("Bearer %s", s.token)).
 		SetError(&apiError).
 		SetBody(body).
 		Post(url)
@@ -86,10 +78,7 @@ func (s *Client) post(body interface{}, url string) (string, error) {
 func (s *Client) put(body interface{}, url string) error {
 	var apiError map[string]interface{}
 	res, err := s.client.R().
-		SetHeader("Accept", "application/json").
 		SetHeader("Content-Type", "application/json").
-		SetHeader("User-Agent", UserAgent).
-		SetHeader("Authorization", fmt.Sprintf("Bearer %s", s.token)).
 		SetError(&apiError).
 		SetBody(body).
 		Put(url)
@@ -108,13 +97,21 @@ func (s *Client) put(body interface{}, url string) error {
 	return nil
 }
 
-// New returns s new client to different Atom APIs.
-func New(host string, token string) (*Client, error) {
-	baseURL, err := url.ParseRequestURI(host)
-	if err != nil {
-		return nil, err
-	}
+func NewRequestMiddleware(token string) func(*resty.Client, *resty.Request) error {
+	return func(c *resty.Client, req *resty.Request) error {
+		req.SetHeader("Accept", "application/json").
+			SetHeader("User-Agent", UserAgent)
 
+		if token != "" {
+			req.SetHeader("Authorization", fmt.Sprintf("Bearer %s", token))
+		}
+
+		return nil
+	}
+}
+
+// New returns s new client to different Atom APIs.
+func New(host string, token string) *Client {
 	transport := &http.Transport{
 		MaxIdleConns:        20000,
 		MaxIdleConnsPerHost: 1000, // see https://github.com/golang/go/issues/13801
@@ -126,12 +123,14 @@ func New(host string, token string) (*Client, error) {
 	}
 
 	s := &Client{
-		baseURL: baseURL,
-		client:  resty.New().SetHostURL(baseURL.String()).SetTransport(transport),
-		prefix:  Prefix,
-		token:   token,
+		client: resty.New().
+			OnBeforeRequest(NewRequestMiddleware(token)).
+			SetHostURL(host).
+			SetTransport(transport).
+			SetTimeout(2 * time.Minute),
+		prefix: Prefix,
+		token:  token,
 	}
 
-	s.client.SetTimeout(2 * time.Minute)
-	return s, nil
+	return s
 }

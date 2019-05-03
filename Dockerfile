@@ -1,4 +1,4 @@
-FROM golang:1.10.1-stretch as builder
+FROM golang:1.12.4-stretch as builder
 MAINTAINER Daniel Negri
 
 RUN set -x \
